@@ -179,3 +179,76 @@ choco install vscode terraform -y
     * terraform brew install terraform
     * azure cli brew install azure-cli
 ]
+
+### Activity-2: Create a s3 bucket
+
+* Navigate to s3
+
+
+
+* Resource:
+    * s3 bucket
+* Inputs:
+    * region
+    * bucket name
+
+### Infra Provisioning using Terraform
+
+* Create an empty folder
+* To Provider doc's
+
+[Refer here : https://registry.terraform.io/providers/hashicorp/aws/latest/docs]
+* For basic user creation steps
+
+[Refer here : https://directdevops.blog/2023/07/27/aws-classroomnotes-27-jul-2023/] and [Refer here : https://sst.dev/chapters/create-an-iam-user.html]
+* Let's find the resource
+
+
+
+* For s3 resource
+
+    [Refer here : https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket]
+* Now look at argument reference of resource
+
+    [Refer here : https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket#argument-reference]
+* Handling credenitals in AWS
+    * install aws cli
+    * `aws configure`
+* For sample activity
+
+    [Refer here : https://github.com/asquarezone/TerraformZone/commit/a3c6f608f6e22b0c461f958b440856946f825052]
+
+### Activity 3: Create a storge account in Azure
+
+* For the official docs on how to create storage account
+
+    [Refer here : https://learn.microsoft.com/en-us/azure/storage/common/storage-account-create?tabs=azure-portal]
+* Resources:
+    * Resource Group
+        * Inputs:
+            * name
+            * location
+    * Storage account
+        * Inputs:
+            * resource group name
+            * location
+            * name of storage account
+* For terraform provider
+
+    [Refer here : https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs]
+* To install azure cli `az login`
+
+    [Refer here : https://learn.microsoft.com/en-us/cli/azure/install-azure-cli]
+* For resource group doc's
+
+    [Refer here : https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/resource_group]
+ * For resource group doc's
+
+    [Refer here : https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/storage_account]
+
+
+
+
+* For the changes
+
+    [Refer here : https://github.com/asquarezone/TerraformZone/commit/3c82fe735bee3e9d83579ba377d3f447f0605329]
