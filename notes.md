@@ -196,11 +196,13 @@ choco install vscode terraform -y
 
 * Create an empty folder
 * To Provider doc's
-
-[Refer here : https://registry.terraform.io/providers/hashicorp/aws/latest/docs]
+    
+    [Refer here : https://registry.terraform.io/providers/hashicorp/aws/latest/docs]
 * For basic user creation steps
 
-[Refer here : https://directdevops.blog/2023/07/27/aws-classroomnotes-27-jul-2023/] and [Refer here : https://sst.dev/chapters/create-an-iam-user.html]
+    [Refer here : https://directdevops.blog/2023/07/27/aws-classroomnotes-27-jul-2023/] 
+    
+    [Refer here : https://sst.dev/chapters/create-an-iam-user.html]
 * Let's find the resource
 
 
@@ -212,7 +214,7 @@ choco install vscode terraform -y
 
     [Refer here : https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket#argument-reference]
 * Handling credenitals in AWS
-    * install aws cli
+    * install AWS CLI
     * `aws configure`
 * For sample activity
 
@@ -233,10 +235,10 @@ choco install vscode terraform -y
             * resource group name
             * location
             * name of storage account
-* For terraform provider
+* For Terraform Provider
 
     [Refer here : https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs]
-* To install azure cli `az login`
+* To install AZURE CLI `az login`
 
     [Refer here : https://learn.microsoft.com/en-us/cli/azure/install-azure-cli]
 * For resource group doc's
@@ -252,3 +254,4 @@ choco install vscode terraform -y
 * For the changes
 
     [Refer here : https://github.com/asquarezone/TerraformZone/commit/3c82fe735bee3e9d83579ba377d3f447f0605329]
+
