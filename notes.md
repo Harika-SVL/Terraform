@@ -464,10 +464,377 @@ db: 10.10.2.0/24
 * Functions 
 
     [Refer here : https://developer.hashicorp.com/terraform/language/functions]
-    * length function determines the length of collection 
+    * Length function determines the length of collection 
     
     [Refer here : https://developer.hashicorp.com/terraform/language/functions/length]
-    * format function 
+    * Format function 
     
     [Refer here : https://developer.hashicorp.com/terraform/language/functions/format]
 
+### Exercise
+
+#### For AWS users
+
+* Create a network with name primary in AWS cidr range `10.10.0.0/16`
+    * Create 3 subnets
+        * web `10.10.0.0/24`
+        * app `10.10.1.0/24`
+        * db `10.10.2.0/24`
+
+* Create a network with name secondary in AWS cidr range `10.11.0.0/16`
+    * Create 3 subnets
+        * web `10.11.0.0/24`
+        * app `10.11.1.0/24`
+        * db `10.11.2.0/24`
+
+### For Azure users
+
+* Create a network with name primary in Azure cidr range `10.10.0.0/16`
+    * Create 3 subnets
+        * web `10.10.0.0/24`
+        * app `10.10.1.0/24`
+        * db `10.10.2.0/24`
+
+* Create a network with name secondary in AWS cidr range `10.11.0.0/16`
+    * Create 3 subnets
+        * web `10.11.0.0/24`
+        * app `10.11.1.0/24`
+        * db `10.11.2.0/24`
+
+### ntier-aws:
+
+* Fixing CIDR range issue with terraform functions
+* For the usage of CIDR subnet function
+
+    [Refer here : https://github.com/asquarezone/TerraformZone/commit/a964d38011911412aed724953d6dd08981fde4e0]
+* graph
+
+
+
+* Try creating a security groups by using list(object) as input type
+
+    [Refer here : https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/security_group]
+    * web
+        * ingress:
+            * http (80): allow to all
+            * ssh (22): allow to all
+    * app
+        * ingress:
+            * ssh (22): allow to all
+
+### ntier-azure
+
+* For the usage of cidrsubnet function to generate subnets
+
+    [Refer here : https://github.com/asquarezone/TerraformZone/commit/b6c2519795931a2e64c4a1dbf20e3b51b47be364]
+* graph
+
+
+
+
+* Creating a Network security group for
+    * web
+        * incoming:
+            * http (80): allow to all
+            * ssh (22): allow to all
+    * app
+        * incoming:
+            * ssh (22): allow to all
+* For screen shots kindly refer classroom video
+* For resource doc's
+
+    [Refer here : https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/network_security_group]
+* For changeset with nsg and object usage
+
+    [Refer here : https://github.com/asquarezone/TerraformZone/commit/334712d174fe77c35b19fcc4259e43a48c9d7e5f]
+
+### Concepts
+
+* For dealing with ip address related stuff terraform has ip functions and we have used cidrsubnet function to calculate subnet cidr based on network range 
+
+    [Refer here : https://developer.hashicorp.com/terraform/language/functions/cidrsubnet]
+* For generating graph or understading the order of creation we can use terraform graph command which generates graph in dot format 
+
+    [Refer here : https://developer.hashicorp.com/terraform/cli/commands/graph] 
+* Graph can be visualized 
+
+    [Refer here : https://dreampuf.github.io/GraphvizOnline/#digraph%20G%20%7B%0A%0A%20%20subgraph%20cluster_0%20%7B%0A%20%20%20%20style%3Dfilled%3B%0A%20%20%20%20color%3Dlightgrey%3B%0A%20%20%20%20node%20%5Bstyle%3Dfilled%2Ccolor%3Dwhite%5D%3B%0A%20%20%20%20a0%20-%3E%20a1%20-%3E%20a2%20-%3E%20a3%3B%0A%20%20%20%20label%20%3D%20%22process%20%231%22%3B%0A%20%20%7D%0A%0A%20%20subgraph%20cluster_1%20%7B%0A%20%20%20%20node%20%5Bstyle%3Dfilled%5D%3B%0A%20%20%20%20b0%20-%3E%20b1%20-%3E%20b2%20-%3E%20b3%3B%0A%20%20%20%20label%20%3D%20%22process%20%232%22%3B%0A%20%20%20%20color%3Dblue%0A%20%20%7D%0A%20%20start%20-%3E%20a0%3B%0A%20%20start%20-%3E%20b0%3B%0A%20%20a1%20-%3E%20b3%3B%0A%20%20b2%20-%3E%20a3%3B%0A%20%20a3%20-%3E%20a0%3B%0A%20%20a3%20-%3E%20end%3B%0A%20%20b3%20-%3E%20end%3B%0A%0A%20%20start%20%5Bshape%3DMdiamond%5D%3B%0A%20%20end%20%5Bshape%3DMsquare%5D%3B%0A%7D]
+* Variable type map or object 
+
+    [Refer here : https://developer.hashicorp.com/terraform/language/expressions/types#maps-objects]
+
+### ntier-aws:
+
+* Try creating a security groups by using list(object) as input type
+
+    [Refer here : https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/security_group]
+    * web
+        * ingress:
+            * http (80): allow to all
+            * ssh (22): allow to all
+    * app
+        * ingress:
+            * ssh (22): allow to all
+            * ssh (8080): allow to all
+    * db:
+        * ingress:
+            * tcp 3306: allow within vpc range
+
+* For the changes to include security groups
+
+    [Refer here : https://github.com/asquarezone/TerraformZone/commit/723f13d8ce8df16ca05927fba71b44246520c174]
+* In AWS to make network work
+    * We need to create an internet gateway and attach to vpc
+    * We need to add route to the default route table to internet gateway
+* Let's use datasource of route table to figure out the default route table id
+
+
+
+* For the changes to make the network ready for next steps in 
+
+    [Refer here : https://github.com/asquarezone/TerraformZone/commit/353297a5e3388042e029d20dd797124bdd912ec5]
+
+* AWS
+
+
+
+* Azure
+
+
+
+### Concepts
+
+* Datasources: Datasources in terraform allows us to fetch information from provider 
+
+    [Refer here : https://developer.hashicorp.com/terraform/language/data-sources]
+* Outputs: They print or expose the information/detail 
+
+    [Refer here : https://developer.hashicorp.com/terraform/language/values/outputs]
+
+### Exercise:
+
+* Try Creating a
+    * Azure VM/ AWS EC2
+    * Azure SQL/AWS RDS mysql
+
+### Creating kubernetes cluster from terraform
+
+* For the changes
+
+    [Refer here : https://github.com/CICDProjects/nopCommerceJuly23/commit/4d26cd8e07507075946a99e49097e0f8407fe051]
+* Workflow
+
+
+
+* For the k8s manifest
+
+    [Refer here : https://github.com/CICDProjects/nopCommerceJuly23/commit/62fdd0c1e1493566a7f94b1daa1f6ad90c422fa2]
+* Softwares
+    * Terraform
+    * azure cli
+    * kubectl
+* Manual deployment steps
+```
+cd deploy
+terraform init
+terraform apply -auto-approve
+az aks get-credentials --resource-group rg-national-cod --name cluster-star-goat
+kubectl apply -f ../k8s/nop-deploy.yaml
+```
+* For changes in jenkins file
+
+    [Refer here : https://github.com/CICDProjects/nopCommerceJuly23/commit/1e31820e3b86fecd18754543f8ef78f9027e237c]
+
+### Git Alias
+
+[Refer here : https://www.atlassian.com/git/tutorials/git-alias]
+
+### Git Hooks
+
+[Refer here : https://directdevops.blog/?s=hooks]
+
+
+
+* Navigate to hooks section
+
+    [Refer here : https://directdevops.blog/2023/03/11/devops-classroomnotes-11-mar-2023/]
+* For popular hooks
+
+    [Refer here : https://github.com/aitemr/awesome-git-hooks]
+* Since for hosted git repo’s like GitHub, GitLab we have no access to hooks folder, they give us webhooks 
+
+
+
+    [Refer here : https://www.blazemeter.com/blog/how-to-integrate-your-github-repository-to-your-jenkins-project]
+* For github actions approach instead of webhooks
+
+    [Refer here : https://mickeygousset.com/blog/trigger-jenkins-pipeline-with-github-actions/]
+
+### Git stash
+
+* For stash doc's
+
+    [Refer here : https://www.atlassian.com/git/tutorials/saving-changes/git-stash]
+
+### ntier-aws: Creating a rds database in AWS
+
+#### Manual steps:
+
+* inputs:
+    * region: us-west-1
+    * database engine: mysql
+    * db instance type/size: db.t2.micro
+    * storage: 20 GB
+    * vpc security group
+    * db subnet group:
+        * this is group of subnets
+
+#### Terraform
+
+* For the changes done to get subnet ids and create subnet by az’s
+
+    [Refer here : https://github.com/asquarezone/TerraformZone/commit/58f2f66d8db35bfcc6c8ba2bda47ee5ab8c1e25c]
+* For the changes to create database
+
+    [Refer here : https://github.com/asquarezone/TerraformZone/commit/fceb15ec9ae5a27396d643c19a7b0ee550b0ee23]
+* Now apply the changes
+
+
+
+
+
+
+
+
+
+
+### ntier-azure: Creating an azure sql database
+
+#### Manual steps:
+
+* For manual steps
+
+    [Refer here : https://learn.microsoft.com/en-us/azure/azure-sql/database/single-database-create-quickstart?view=azuresql-db&tabs=azure-portal]
+
+#### Terraform
+
+* For sql server resource
+
+    [Refer here : https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/mssql_server]
+* For the changes in terraoform template
+
+    [Refer here : https://github.com/asquarezone/TerraformZone/commit/64bdc196442e2292493a9c6dbdc4e35ed0eef923]
+
+### ntier – aws
+
+* For manual creation steps, refer classroom video
+* Steps:
+    * import key pair (generate key pair)
+    * Figure out ami id for os `ami-0f8e81a3da6e2510a`
+    * instance type `t2.micro`
+    * select security group
+
+#### Realizing in terraform
+
+* We need to import key pair for resource
+
+    [Refer here : https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/key_pair]
+* For the changes to import the key
+
+    [Refer here : https://github.com/asquarezone/TerraformZone/commit/7c413cc8f4eac70ca241de14877f9f12703d28f2]
+* For the changes in the template to accomodate the ec2 instance creation
+
+    [Refer here : https://github.com/asquarezone/TerraformZone/commit/01588f5b3981e737a540a97bc1cc21266fb1cf40]
+* AMI id as user input is an horrible idea, we need to fix that and multiple inputs for one ec2 instance can be combined into one variable (object/map)
+* Exercise:
+    * Try creating an ec2 instance in web subnet also with similar configuration
+
+### Terraform – Concepts
+
+* To read the contents of the file we have file function 
+
+    [Refer here : https://developer.hashicorp.com/terraform/language/functions/file]
+* Creating a key pair in terraform 
+
+    [Refer here : https://registry.terraform.io/providers/hashicorp/tls/latest/docs/resources/private_key]
+* For the sample using the creation
+
+    [Refer here : https://github.com/asquarezone/TerraformZone/commit/d4f3c75a2e54702250f119cac78f1699c1ca5e97]
+* Taint and untaint in terraform : 
+
+    [Refer here : https://developer.hashicorp.com/terraform/cli/commands/taint]
+
+### ntier – azure
+
+* overview
+
+
+
+* Let's create a vm in Azure, for manual steps refer class room video and for steps
+
+    [Refer here : https://learn.microsoft.com/en-us/azure/virtual-machines/linux/quick-create-portal?tabs=ubuntu]
+* For creating a vm in Azure we need
+    * network: vnet
+    * subnet
+    * public ip address
+    * network security group
+    * network interface
+
+### Realizing in terraform
+
+* To Create a vm in azure, we need vnet, subnet, nsg, publicip, network interface
+
+
+
+* We already have template written and we have created
+    * vnet with subnets
+    * nsg
+* Now lets get started with rest
+    * public ip 
+    
+        [Refer here : https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/public_ip#argument-reference]
+    * network interface 
+    
+        [Refer here : https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/network_interface] 
+    * Network interface and security group association
+
+        [Refer here : https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/network_interface_application_security_group_association]
+* For the changes done to create public ip and network interface
+
+    [Refer here : https://github.com/asquarezone/TerraformZone/commit/c626c322429b1142c7b32f0ec4b197af380b5d3c]
+* Apply the template and view the resources
+
+
+
+
+
+* For creating a linux vm for resource
+
+    [Refer here : https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/linux_virtual_machine]
+* For the changes done to create a linux vm in azure
+
+    [Refer here : https://github.com/asquarezone/TerraformZone/commit/47c8f199d91435e522f8bd969b88a2eeb744608d]
+
+
+
+
+* Next Steps:
+    * Provisioning
+    * State management
+    * Multi user
+    * Multi environment
+
+### Exercise
+
+* Create a vm in web subnet in azure
+* Create an ec2 instance in web1 subnet in aws
+
+### Provisioners in Terraform
+Refer Here for terraform provisioner offical docs
+Provisioner types
+file: This can copy file into remote machine created by terraform
+local-exec: this executes in the machine where terraform is executed
+remote-exec: This executes in resource created by terraform
+Provisioner Connection: To establish remote connection, we need to pass connection information Refer Here
+ntier – aws. Install apache in ec2
+manual steps for installing spring petclinic
