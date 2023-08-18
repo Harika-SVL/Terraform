@@ -830,11 +830,214 @@ kubectl apply -f ../k8s/nop-deploy.yaml
 * Create an ec2 instance in web1 subnet in aws
 
 ### Provisioners in Terraform
-Refer Here for terraform provisioner offical docs
-Provisioner types
-file: This can copy file into remote machine created by terraform
-local-exec: this executes in the machine where terraform is executed
-remote-exec: This executes in resource created by terraform
-Provisioner Connection: To establish remote connection, we need to pass connection information Refer Here
-ntier – aws. Install apache in ec2
-manual steps for installing spring petclinic
+
+* For terraform provisioner offical doc's
+
+    [Refer here : https://developer.hashicorp.com/terraform/language/resources/provisioners/syntax]
+* Provisioner types : 
+    * file: This can copy file into remote machine created by terraform
+    * local-exec: this executes in the machine where terraform is executed
+    * remote-exec: This executes in resource created by terraform
+* Provisioner Connection: To establish remote connection, we need to pass connection information 
+
+    [Refer here : https://developer.hashicorp.com/terraform/language/resources/provisioners/connection]
+
+### ntier – aws. Install apache in ec2
+
+* Manual steps for installing Spring-petclinic
+```
+sudo apt update
+sudo apt install openjdk-11-jdk -y
+cd /tmp && wget https://referenceapplicationskhaja.s3.us-west-2.amazonaws.com/spring-petclinic-2.4.2.jar
+java -jar /tmp/spring-petclinic-2.4.2.jar &
+```
+#### Realizing using terraform
+
+* For changes done
+
+    [Refer here : https://github.com/asquarezone/TerraformZone/commit/5633d2e153350ec99f4a5783ec9ababab5d97621]
+* For the next change, here also java is not found
+
+    [Refer here : https://github.com/asquarezone/TerraformZone/commit/01900e614b279ece877a05ecfc5e7ffed72ca37a]
+
+### ntier – azure
+
+* For the latest changeset and try to execute and see the results
+
+    [Refer here : https://github.com/asquarezone/TerraformZone/commit/0609c3d49d3f427de1c28e982aa641303f221b18]
+* Try create a web vm or web ec2 and install apache in it
+```
+sudo apt update && sudo apt install apache2 -y
+```
+### Concept – Backend
+
+* For official doc's
+
+    [Refer here : https://developer.hashicorp.com/terraform/language/settings/backends/configuration]
+* Terraform by default stores the state locally so multi user execution will create problems
+* The default backend is local backend
+* There are many other available backends 
+
+    [Refer here : https://developer.hashicorp.com/terraform/language/settings/backends/configuration#available-backends]
+* Next Steps:
+    * Backend
+    * Workspace
+    * Modules and registry
+    * State management:
+        * import
+        * state loss scenarios
+
+### ntier-aws
+
+* Let's apply backend to ntier-aws to store in s3 bucket 
+
+    [Refer here : https://developer.hashicorp.com/terraform/language/settings/backends/s3]
+* For the changes
+
+    [Refer here : https://github.com/asquarezone/TerraformZone/commit/ae8fd24751687477de9dc238d189856f8463a205]
+* As we have observed when multiple users try to execute at the same time only user gets the lock and others user have to wait till the lock is released
+
+
+
+
+
+### ntier-azure
+
+* For azurerm backend
+
+    [Refer here : https://developer.hashicorp.com/terraform/language/settings/backends/azurerm]
+* For the changes done to accomodate backends
+
+    [Refer here : https://github.com/asquarezone/TerraformZone/commit/dce4b9dc1f964b3a7c3131a549d28c11d065981f]
+
+
+
+
+* For the new vars for a qa environment
+
+    [Refer here : https://github.com/asquarezone/TerraformZone/commit/cda1a1d28b99f7dacb2fa7f15192c835eb5ccaf3]
+* Create a new workspace qa
+
+
+
+* Once we create state file will be stored with qa information
+* Exercise: Try doing the same workspace concept in aws
+
+### Concepts
+
+#### Workspaces
+
+* Terraform workspaces allows us to create multiple environments from the same template.
+* By default we were working with a workspace called as default
+* For official doc's
+
+    [Refer here : https://developer.hashicorp.com/terraform/cloud-docs/workspaces]
+
+#### Other topics
+* For each in terraform 
+
+    [Refer here : https://developer.hashicorp.com/terraform/language/meta-arguments/for_each]
+* For changeset
+
+    [Refer here : https://github.com/asquarezone/TerraformZone/commit/d4731a139c29cd973167329c330358db5135de25]
+* Conditional resource creation for conditional expression
+
+    [Refer here : https://developer.hashicorp.com/terraform/language/expressions/conditionals]
+```
+resource "aws_s3_bucket" "item" {
+  count      = terraform.workspace == "default" ? 1: 0
+  bucket     = random_string.bucket_names[count.index].id
+  depends_on = [random_string.bucket_names]
+}
+
+
+resource "random_string" "bucket_names" {
+  count   = terraform.workspace == "default" ? 1: 0
+  length  = 8
+  special = false
+  lower   = true
+  numeric = false
+}
+```
+#### Activity: Importing terraform resources
+
+* Azure:
+    * Create a resource group
+    * Create a new folder in your system and configure terraform azurerm provider
+* AWS:
+    * Create a vpc
+    * Create a new folder in your system and configure terraform aws provider
+
+* Import command 
+
+    [Refer here : https://developer.hashicorp.com/terraform/cli/import]
+* Refer classroom video for importing resources
+
+#### Exercise: Make a note of observation
+
+* Create 3 s3_buckets/storage_accounts resources
+    * Delete one resource from terraform and reexecute apply
+* Out of 3 resources i dont want terraform to control one resource any more
+* Importing a new resource into terraform state
+
+## Reusability in terraform
+
+### Create a vpc in AWS in mumbai
+* For vpc module
+
+    [Refer here : https://registry.terraform.io/modules/terraform-aws-modules/vpc/aws/latest]
+* For the changes
+
+    [Refer here : https://github.com/asquarezone/TerraformZone/commit/d4237dbf42ab47d4e12e74438aa42d00d8acea05]
+
+### Create a module to create aws security group
+* For the module created to create an aws security group
+
+    [Refer here : https://github.com/asquarezone/TerraformZone/commit/ffd0c5d8f08ad983aeba98ed575330891e5dc7a2]
+* Now let's try to use this module from local path
+
+    [Refer here : https://github.com/asquarezone/TerraformZone/commit/258215c3f46f649b6bf576463ed6b921a1523a54]
+* Try creating 2 security groups one in mumbai and one in oregon
+* For module submitted in git
+
+    [Refer here : https://github.com/dummyrepos/securitygroup] 
+
+### Concepts: Module
+
+* For official doc's
+
+    [Refer here : https://developer.hashicorp.com/terraform/language/modules]
+* Terraform registry is collection of public modules
+* Modules can be used from various sources 
+
+    [Refer here : https://developer.hashicorp.com/terraform/language/modules/sources]
+* Terraform supports connecting to same cloud using provider with alias for different configurations as part of one deployment
+    * In AWS if we want terraform to create resources in two different regions or two different accounts
+    * In Azure to create resources in two different subscriptions/accounts
+
+## Bringing up the Application to sell products online
+
+* Overview
+
+
+
+* Issues:
+    * Bringing up the application
+        * Lot of manual steps
+        * Redoing the same work many times could be difficult
+* The code for application developed is over here 
+    [Refer here : https://github.com/nopSolutions/nopCommerce]
+
+### Terms
+
+* Continuous Deployment vs Continuous Delivery
+
+
+
+* Pipeline
+
+
+
+* Next Steps:
+    * Container (Docker)
+    * Container Orchestration (Kubernetes)
