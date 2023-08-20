@@ -4,16 +4,17 @@
 
     ![Alt text](shots/1.PNG)
 
-* LT has 3 customers who are ready to buy
+* Let's say, LT has 3 customers who are ready to buy : 
     * TCS wants to run application on AWS
     * Infosys on Azure
     * JP Morgan on vmware
-* How to automate these different deployments
+* How to automate these different deployments...?
     * Creating manually
-    * For automation:
+    * For Automation:
         * AWS has Cloud formation
         * Azure has ARM Templates
-* Terraform can automate infra creation in almost all the virtual environments and Terraform is an open source software and provides enterprise.
+* Terraform can automate infra creation in almost all the virtual environments 
+* Terraform is an open source software and provides enterprise
 * Terraform also allows us to deal with multiple environments
 
 ### Architecture of Terraform
