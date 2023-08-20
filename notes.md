@@ -19,27 +19,28 @@
 
 ### Architecture of Terraform
 
-* Terraform is developed in Go language and installation of terraform is one executable
-* Providers are not part of terraform installations as we try to create infra, as part of initializations providers are downloaded
-* Providers have resources and datasources as part of it
+* Terraform is developed in Go language 
+* Installation of terraform is one executable (only one'.exe' file)
+* Providers are not part of terraform installations, as we try to create infra, as part of initializations providers are downloaded
+* Providers have resources and datasources as part of them
 
     ![Alt text](shots/2.PNG)
 
 ### Concepts of Terraform
 
 * Provider: This determines the target area to create infra structure
-    * For the list of providers
+    * For the list of providers :
 
     [Refer here : https://registry.terraform.io/browse/providers]
-* Terraform providers are of three categories
-    * official
-    * partner
-    * community
-* For providers documenation by hashicorp
+* Terraform providers are of three categories :
+    * Official
+    * Partner
+    * Community
+* For providers documentation by Hashicorp
 
     [Refer here : https://developer.hashicorp.com/terraform/language/providers]
 
-[ Note: For you reference we have used the following template ]
+[ Note: For the reference we have used the following template ]
 ```
 terraform {
   required_providers {
