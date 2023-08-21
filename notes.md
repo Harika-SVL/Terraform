@@ -168,6 +168,8 @@ terraform -version
 
 * Navigate to s3
 
+=> AWS account => search s3 => s3 => Create bucket => Bucket name => Bucket key : Enable => Create bucket
+
 
 
 * Resource:
@@ -178,11 +180,11 @@ terraform -version
 
 ### Infra Provisioning using Terraform
 
-* Create an empty folder
+* Create an empty folder (D:\Teraform\s3-bucket => provider.tf)
 * To Provider doc's
     
     [Refer here : https://registry.terraform.io/providers/hashicorp/aws/latest/docs]
-* For basic user creation steps
+* For basic user(IAM user) creation steps and take Access key and Secret Access key
 
     [Refer here : https://directdevops.blog/2023/07/27/aws-classroomnotes-27-jul-2023/] 
     
