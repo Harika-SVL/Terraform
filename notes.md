@@ -189,6 +189,13 @@ terraform -version
     [Refer here : https://directdevops.blog/2023/07/27/aws-classroomnotes-27-jul-2023/] 
     
     [Refer here : https://sst.dev/chapters/create-an-iam-user.html]
+
+=> IAM => Users => Create User => User name : terraform => Next
+
+=> Attach policies directly => select AdministrationAccess => Next => Create
+
+=> Select Security Credentials => Access Keys : Create access key => Command Line Interface (CLI) => Next => Create access key
+
 * Let's find the resource
 
 
