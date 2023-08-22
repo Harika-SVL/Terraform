@@ -168,9 +168,9 @@ terraform -version
 
 * Navigate to s3
 
-=> AWS account => search s3 => s3 => Create bucket => Bucket name => Bucket key : Enable => Create bucket
+=> AWS account => search s3 => s3 => Create bucket => Bucket name : bucket-terraform.1 => Bucket key : Enable => Create bucket
 
-
+   ![Alt text](shots/5.PNG)
 
 * Resource:
     * s3 bucket
@@ -181,6 +181,9 @@ terraform -version
 ### Infra Provisioning using Terraform
 
 * Create an empty folder (D:\Teraform\s3-bucket => provider.tf)
+
+   ![Alt text](shots/4.PNG) 
+
 * To Provider doc's
     
     [Refer here : https://registry.terraform.io/providers/hashicorp/aws/latest/docs]
@@ -190,11 +193,13 @@ terraform -version
     
     [Refer here : https://sst.dev/chapters/create-an-iam-user.html]
 
-=> IAM => Users => Create User => User name : terraform => Next
+=> IAM => Users => Create User => User name : terraform => Next => Attach policies directly => select AdministratorAccess => Next => Create user
 
-=> Attach policies directly => select AdministrationAccess => Next => Create
+   ![Alt text](shots/6.PNG)  
 
 => select terraform user => select Security Credentials => Access Keys : Create access key => Command Line Interface (CLI) => Tick the checkbox => Next => Create access key
+
+   ![Alt text](shots/7.PNG)
 
 * Enter the folder created and perform the following
 ```
@@ -214,8 +219,8 @@ terraform apply
 ## provider.tf
 
 provider "aws" {
-    access_key = "from user-created"
-    secret_key = "from user-created"
+    access_key = "AKIAYGBCZFGIO3ZUNEQW"
+    secret_key = "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"
     region = "ap-south-2"
 }
 
