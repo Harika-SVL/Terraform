@@ -194,28 +194,54 @@ terraform -version
 
 => Attach policies directly => select AdministrationAccess => Next => Create
 
-=> Select Security Credentials => Access Keys : Create access key => Command Line Interface (CLI) => Next => Create access key
+=> select terraform user => select Security Credentials => Access Keys : Create access key => Command Line Interface (CLI) => Tick the checkbox => Next => Create access key
 
+* Enter the folder created and perform the following
+```
+terraform init
+terraform validate
+terraform apply
+```
 * Let's find the resource
 
+=> To find a resource search fore aws_s3_bucket in the terraform registry page
 
-
-* For s3 resource
-
-    [Refer here : https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket]
+[Refer here : https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket]
 * Now look at argument reference of resource
 
     [Refer here : https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket#argument-reference]
-* Handling credenitals in AWS
-    * install AWS CLI
-    * `aws configure`
-* For sample activity
+```
+## provider.tf
 
-    [Refer here : https://github.com/asquarezone/TerraformZone/commit/a3c6f608f6e22b0c461f958b440856946f825052]
+provider "aws" {
+    access_key = "from user-created"
+    secret_key = "from user-created"
+    region = "ap-south-2"
+}
+
+resource "aws_s3_bucket" "first" {
+    bucket = "terraform_bucket"
+}
+```
+[NOTE : Adding credentials is not a safer approach to configure]
+* Handling credenitals in AWS in  a safer approach : 
+    1. install AWS CLI
+    2. `aws configure`
+* For sample activity without adding credentials directly
+```
+provider "aws" {
+    region = "ap-south-2"
+}
+
+resource "aws_s3_bucket" "first" {
+  bucket = "terraform_bucket"
+}
+```
+* After completing the activity do 'terraform destroy'
 
 ### Activity 3: Create a storge account in Azure
 
-* For the official docs on how to create storage account
+* For the official doc's on how to create storage account
 
     [Refer here : https://learn.microsoft.com/en-us/azure/storage/common/storage-account-create?tabs=azure-portal]
 * Resources:
@@ -240,9 +266,6 @@ terraform -version
  * For resource group doc's
 
     [Refer here : https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/storage_account]
-
-
-
 
 * For the changes
 
