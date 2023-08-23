@@ -346,7 +346,7 @@ depends_on = [ azurerm_resource_group.myresg ]
 
 * Terraform reads all the `.tf` files in the folder and then combines to one file and executes the terraform (While writing terraform templates there is no need to write everything in one file)
     * From now on let's have one `.tf` for provdier and then another `.tf` file for logical group of resources
-    * All the variables will be in `inputs.tf` file and all the outputs will be in `outputs.tf` file
+    * All the inputs/variables/arguments will be in `inputs.tf` file and all the outputs/attributes will be in `outputs.tf` file
 
 => File Structure
 
