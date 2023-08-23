@@ -271,10 +271,25 @@ resource "aws_s3_bucket" "first" {
  * For resource group doc's
 
     [Refer here : https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/storage_account]
+```
+provider "azurerm" {
+    features {     
+    }
+}
 
-* For the changes
+resource "azurerm_resource_group" "myresg" {
+  name = "fromtf"
+  location = "eastus"
+}
 
-    [Refer here : https://github.com/asquarezone/TerraformZone/commit/3c82fe735bee3e9d83579ba377d3f447f0605329]
+resource "azurerm_storage_account" "first" {
+    name = "fromtffortf"
+    resource_group_name = "fromtf"
+    location = "eastus"
+    account_tier             = "Standard"
+  account_replication_type = "GRS"
+}
+```
 
 ### Terraform contd...
 
