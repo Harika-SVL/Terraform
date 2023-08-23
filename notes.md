@@ -290,23 +290,54 @@ resource "azurerm_storage_account" "first" {
   account_replication_type = "GRS"
 }
 ```
-
 ### Order of Creation of resources
 
-* Order of Creation: Order of creation can be acheived in two ways
-    * explicit dependency using `depends_on`
+* Order of creation can be acheived in two ways : 
+    1. Explicit dependency : using `depends_on`
     
     [Refer here : https://developer.hashicorp.com/terraform/language/meta-arguments/depends_on]
+```
+provider "azurerm" {
+    features {     
+    }
+  }
 
-    * For the usage
+resource "azurerm_resource_group" "myresg" {
+  name = "fromtf"
+  location = "eastus"
+}
 
-     [Refer here : https://github.com/asquarezone/TerraformZone/commit/6062bd0454bf293cb68d65e8d624983c419728fa]
-    * Implicit dependency: Terraform figures out by looking at your configuration/template
+resource "azurerm_storage_account" "first" {
+  name = "fromtffortf"
+  resource_group_name = "fromtf"
+  location = "eastus"
+  account_tier             = "Standard"
+  account_replication_type = "GRS"
+  depends_on = [ azurerm_resource_group.myresg ]
+}
+```
+   2. Implicit dependency: Terraform figures out by looking at your configuration/template
         * When the output (attribute) of one resource is used as input (argument) to other
-        * For the changes
+```
+provider "azurerm" {
+    features {     
+    }
+  }
 
-    [Refer here : https://github.com/asquarezone/TerraformZone/commit/d08e36cd8bd1c68069d85e364f4ca623ce658c55]
-* To use one resource in other resource argument `<resource_type>.<name>`
+resource "azurerm_resource_group" "myresg" {
+  name = "fromtf"
+  location = "eastus"
+}
+
+resource "azurerm_storage_account" "first" {
+  name = "fromtffortf"
+  resource_group_name = azurerm_resource_group.myresg.name
+  location = azurerm_resource_group.myresg.location
+  account_tier             = "Standard"
+  account_replication_type = "GRS"
+}
+```
+* To use one resource in other resource argument `<resource_type>.<name>.<Attribute_name>`
 ```
 depends_on = [ azurerm_resource_group.myresg ]
 ```
