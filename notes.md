@@ -294,7 +294,7 @@ resource "azurerm_storage_account" "first" {
 ### Order of Creation of resources
 
 * Order of creation can be acheived in two ways : 
-    1. Explicit dependency : using `depends_on`
+1. Explicit dependency : using `depends_on`
     
     [Refer here : https://developer.hashicorp.com/terraform/language/meta-arguments/depends_on]
 ```
@@ -338,11 +338,11 @@ resource "azurerm_storage_account" "first" {
   account_replication_type = "GRS"
 }
 ```
-* To use one resource in other resource argument `<resource_type>.<name>.<Attribute_name>`
+* To use one resource in other resource argument `<resource_type>.<name>.<attribute_name>`
 ```
 depends_on = [ azurerm_resource_group.myresg ]
 ```
-### Best Practice to write terraform template (Based on what we have covered so far)
+### Best Practice to write terraform template (based on what we have covered so far)
 
 * Terraform reads all the `.tf` files in the folder and then combines to one file and executes the terraform (While writing terraform templates there is no need to write everything in one file)
     * From now on let's have one `.tf` for provdier and then another `.tf` file for logical group of resources
@@ -382,7 +382,7 @@ terraform validate
 terraform apply
 terraform destroy
 ```
-### Manual Steps for next activity
+### Activity-ntier
 
 * Azure
 
