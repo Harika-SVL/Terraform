@@ -386,11 +386,11 @@ terraform destroy
 
 * Azure
 
-
+    ![Alt text](shots/9.PNG)
 
 * AWS
 
-
+    ![Alt text](shots/10.PNG)
 
 ### ntier network in Azure
 
