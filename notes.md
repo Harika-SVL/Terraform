@@ -206,6 +206,7 @@ terraform -version
 terraform init
 terraform validate
 terraform apply
+terraform destroy
 ```
 * Let's find the resource
 
@@ -343,19 +344,44 @@ depends_on = [ azurerm_resource_group.myresg ]
 ```
 ### Best Practice to write terraform template (Based on what we have covered so far)
 
-* Terraform reads all the `.tf` files in the folder and then combines as one file and executes the terraform => While writing terraform templates there is no need write everything in one file
-    * From now one lets have one tf for provdier and then one tf file for logical group of resources.
-    * All the variables will be in one file `inputs.tf` and all the outputs will be in the file `outputs.tf`
+* Terraform reads all the `.tf` files in the folder and then combines to one file and executes the terraform (While writing terraform templates there is no need to write everything in one file)
+    * From now on let's have one `.tf` for provdier and then another `.tf` file for logical group of resources
+    * All the variables will be in `inputs.tf` file and all the outputs will be in `outputs.tf` file
 
+=> File Structure
 
+   ![Alt text](shots/8.PNG) 
 
-* Use `terraform fmt` to align the terraform template into common canonical format, for the changes done
+* Use `terraform fmt` to align the terraform template into common canonical format
+```
+provider "azurerm" {
+  features {
+  }
 
-    [Refer here : https://github.com/asquarezone/TerraformZone/commit/5d20b10dfe611bb6a2588f74723e48b4b002a01a]
+}
 
+resource "azurerm_resource_group" "myresg" {
+  name     = "fromtf"
+  location = "eastus"
+}
 
-
-
+resource "azurerm_storage_account" "first" {
+  name                     = "fromtffortf"
+  resource_group_name      = azurerm_resource_group.myresg.name
+  location                 = azurerm_resource_group.myresg.location
+  account_tier             = "Standard"
+  account_replication_type = "GRS"
+  
+}
+```
+* Terraform statements
+```
+terraform init
+terraform fmt
+terraform validate
+terraform apply
+terraform destroy
+```
 ### Manual Steps for next activity
 
 * Azure
