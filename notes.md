@@ -51,7 +51,7 @@ terraform {
     azurerm = {
       source  = "hashicorp/azurerm"
       version = "=3.0.0"
-    }
+    } 
   }
 }
 
@@ -164,7 +164,7 @@ terraform -version
 ```
 ![Alt text](shots/3.PNG)
 
-### Activity-2: Create a s3 bucket
+### Activity-bucket: Create a s3 bucket
 
 * Navigate to s3
 
@@ -216,11 +216,11 @@ terraform apply
 
     [Refer here : https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket#argument-reference]
 ```
-## provider.tf
+## Teraform\Activity-bucket\provider.tf
 
 provider "aws" {
-    access_key = "AKIAYGBCZFGIO3ZUNEQW"
-    secret_key = "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"
+    access_key = "access"
+    secret_key = "security-access"
     region = "ap-south-2"
 }
 
@@ -244,7 +244,7 @@ resource "aws_s3_bucket" "first" {
 ```
 * After completing the activity do 'terraform destroy'
 
-### Activity 3: Create a storge account in Azure
+### Activity: Create a storge account in Azure
 
 * For the official doc's on how to create storage account
 
@@ -291,7 +291,7 @@ resource "azurerm_storage_account" "first" {
 }
 ```
 
-### Terraform contd...
+### Order of Creation of resources
 
 * Order of Creation: Order of creation can be acheived in two ways
     * explicit dependency using `depends_on`
