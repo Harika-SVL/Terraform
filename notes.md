@@ -403,10 +403,7 @@ terraform destroy
             * app: 10.10.1.0/24
             * db: 10.10.2.0/24
 
-
-
-
-### Terraform implementation:
+#### Implementation:
 
 * For basic strucuture and terraform constraints added
 
@@ -427,6 +424,8 @@ terraform destroy
     [Refer here : https://github.com/asquarezone/TerraformZone/commit/067f83585974f81f0d41332542d94ba6f5ddcf40]
 
 ### Terraform concepts
+
+* Any VERSION => `major.minor.patch`
 
 * Terraform block: 
 
