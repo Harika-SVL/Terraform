@@ -396,7 +396,9 @@ terraform destroy
 
 * Manual steps:
     * Create a resource group
-    * Create a vnet Refer Here for screenshots
+    * Create a vnet 
+    
+    [Refer here : https://learn.microsoft.com/en-us/azure/virtual-network/quick-create-portal]
     * network: 10.10.0.0/16
         * subnets:
             * web: 10.10.0.0/24
@@ -405,21 +407,22 @@ terraform destroy
 
 #### Implementation:
 
-* For basic strucuture and terraform constraints added
+* For basic structure and terraform constraints added
 
     [Refer here : https://github.com/asquarezone/TerraformZone/commit/54c319951a6b6f6f38dd325bc03b55f215c2f443]
-* For resource definitions done
+* For resource definitions 
 
     [Refer here : https://github.com/asquarezone/TerraformZone/commit/fe82b917ad18960ba8a87f5a2311b4fb7464a18f]
 * For the variables added
 
     [Refer here : https://github.com/asquarezone/TerraformZone/commit/8fcc9aa67188b73e4240a5149ab03531daff36ba]
-* To pass input variables we have two options
-* option 1: from cli directly using `-var terraform apply -var 'resource_group_name=ntier-dev' -var 'location=eastus'`
-* option 2: create a file with variable values 
+* To pass input variables we have two options :
+
+    1. from cli directly using `-var terraform apply -var 'resource_group_name=ntier-dev' -var 'location=eastus'`
+    2. create a file with variable values `dev.tfvars`
 
     [Refer here : https://developer.hashicorp.com/terraform/language/values/variables#variable-definitions-tfvars-files]
-*  For the changes to accomodate ntier with tfvars
+*  To accomodate ntier with tfvars
 
     [Refer here : https://github.com/asquarezone/TerraformZone/commit/067f83585974f81f0d41332542d94ba6f5ddcf40]
 
@@ -436,7 +439,7 @@ terraform destroy
     * As well as terraform requirements 
     
     [Refer here : https://developer.hashicorp.com/terraform/language/settings#specifying-a-required-terraform-version]
-    * There are other areas as well, which we will be discussing in later parts fo course
+
 * Version constraints: 
 
 [Refer here : https://developer.hashicorp.com/terraform/language/expressions/version-constraints]
