@@ -456,6 +456,9 @@ terraform destroy
     * Create a vpc
 
 => select VPC => Create VPC => select VPC only => name : manual => CIDR : 10.100.0.0/16 => Create VPC
+
+   ![Alt text](shots/11.PNG)
+   ![Alt text](shots/12.PNG)
     
 * network: 10.10.0.0/16 => 10.10.x.x ( 10.10.0.0 to 10.10.255.255)
 
