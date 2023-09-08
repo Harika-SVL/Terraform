@@ -481,10 +481,10 @@ terraform destroy
    ![Alt text](shots/14.PNG)
    ![Alt text](shots/15.PNG)
 
-* After terraform apply we are observing three new files
-    * .teraform.lock.hcl
-    * terraform.tfstate
-    * terraform.tfstate.backup
+* After terraform apply we are observe three new files get created :
+    1. .teraform.lock.hcl
+    2. terraform.tfstate
+    3. terraform.tfstate.backup
 
 #### Create VPC with one SUBNET
 
@@ -493,7 +493,7 @@ terraform destroy
     * name: web 1
 * Manually : 
 
-=> Vpc => Subnets => Create subnet => ID : selecct manual vpc => subnet name : web 1, cidr : 10.100.0.0/24 => Create subnet
+=> Vpc => Subnets => Create subnet => ID : select manual vpc => subnet name : web 1, cidr : 10.100.0.0/24 => Create subnet
 
    ![Alt text](shots/18.PNG)
 
@@ -505,22 +505,14 @@ terraform destroy
     ![Alt text](shots/20.PNG)
     ![Alt text](shots/21.PNG)
 
-* Exercise: Try adding 5 more subnets
-```
-web2: 10.10.1.0/24
-db1: 10.10.2.0/24
-db2: 10.10.3.0/24
-app1: 10.10.4.0/24
-app2: 10.10.5.0/24
-```
 ### Concepts
 
 * For terraform locals
 
     [Refer here : https://developer.hashicorp.com/terraform/language/values/locals]
 * Terraform works:
-    * Terraform when applied tries to figure out a plan to make the desired state an actual state (`terraform plan`)
-    * Terraform creates a file called as terraform.tfstate when it first creates some resource
+    * Terraform when applied tries to figure out a plan to make the desired state an actual state - `terraform plan`
+    * Terraform creates a file called as `terraform.tfstate` when it first creates some resource
     * Terraform stores the information about the created resources in a json format called as `tfstate`
     * Terraform refresh updates the tfstate according to actual state
 
