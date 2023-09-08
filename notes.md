@@ -462,17 +462,21 @@ terraform destroy
     
 * network: 10.10.0.0/16 => 10.10.x.x ( 10.10.0.0 to 10.10.255.255)
 
-
-
-
-
-
-
-* For the changes
+* For the changes for creating VPC using Terraform
 
     [Refer here : https://github.com/asquarezone/TerraformZone/commit/c0a890c9a1216a15885790be91e61791914dc9ce]
 
-
+* Terraform statements
+```
+terraform init
+terraform fmt
+terraform validate
+terraform apply
+terraform show
+terraform destroy
+```
+   ![Alt text](shots/13.PNG)
+   ![Alt text](shots/14.PNG)
 
 * After terraform apply we are observing three new files
     * .teraform.lock.hcl
