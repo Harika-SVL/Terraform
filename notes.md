@@ -452,6 +452,8 @@ terraform destroy
 
 ### ntier network in AWS
 
+#### Create VPC
+
 * Manual steps:
     * Create a vpc
 
@@ -462,7 +464,7 @@ terraform destroy
     
 * network: 10.10.0.0/16 => 10.10.x.x ( 10.10.0.0 to 10.10.255.255)
 
-* For the changes for creating VPC using Terraform
+* For the changes using Terraform
 
     [Refer here : https://github.com/asquarezone/TerraformZone/commit/c0a890c9a1216a15885790be91e61791914dc9ce]
 
@@ -483,6 +485,9 @@ terraform destroy
     * .teraform.lock.hcl
     * terraform.tfstate
     * terraform.tfstate.backup
+
+#### Create VPC with one SUBNET
+
 * Let's add one subnet
     * cidr: 10.10.0.0/24 => 10.10.0.x => 10.10.0.0 to 10.10.0.255
     * name: web 1
@@ -492,11 +497,13 @@ terraform destroy
 
    ![Alt text](shots/18.PNG)
 
-* For the changes of creating from Terraform
+* For the changes using Terraform
 
     [Refer here : https://github.com/asquarezone/TerraformZone/commit/a91ca3ce662cef4819eddd1f654f6f424a8376b4]
 
-
+    ![Alt text](shots/19.PNG)
+    ![Alt text](shots/20.PNG)
+    ![Alt text](shots/21.PNG)
 
 * Exercise: Try adding 5 more subnets
 ```
