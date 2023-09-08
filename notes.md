@@ -477,6 +477,7 @@ terraform destroy
 ```
    ![Alt text](shots/13.PNG)
    ![Alt text](shots/14.PNG)
+   ![Alt text](shots/15.PNG)
 
 * After terraform apply we are observing three new files
     * .teraform.lock.hcl
@@ -485,12 +486,13 @@ terraform destroy
 * Let's add one subnet
     * cidr: 10.10.0.0/24 => 10.10.0.x => 10.10.0.0 to 10.10.0.255
     * name: web 1
+* Manually : 
 
+=> Vpc => Subnets => Create subnet => ID : selecct manual vpc => subnet name : web 1, cidr : 10.100.0.0/24 => Create subnet
 
+   ![Alt text](shots/18.PNG)
 
-
-
-* For the changes
+* For the changes of creating from Terraform
 
     [Refer here : https://github.com/asquarezone/TerraformZone/commit/a91ca3ce662cef4819eddd1f654f6f424a8376b4]
 
@@ -515,8 +517,8 @@ app2: 10.10.5.0/24
     * Terraform stores the information about the created resources in a json format called as `tfstate`
     * Terraform refresh updates the tfstate according to actual state
 
-
-
+    ![Alt text](shots/16.PNG)
+    ![Alt text](shots/17.PNG)
 
 ### ntier-aws: adding 5 more subnets
 
