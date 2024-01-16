@@ -49,3 +49,82 @@
 * _**Idempotance**_ is the property which states execution one time or multiple times leads to the same result
 * Reusability is extremely simple and terraform can also handle multiple environments ( Developer, QA, UAT/Staging/Production )
 
+### Terraform
+
+* Terraform is an opensource tool developed by HashiCorp which can create infra in almost any virtual platform
+* Terraform uses a language which is called as Hashicorp Configuration Language (HCL) to express desired State
+
+#### Terms
+
+* Resource : This is the infrastructure which you want to create
+* Provider : This refers to where you want to create infrastructure
+* The inputs which we express in teraform are called as arguments
+* The output given by terraform is referred as attribute
+
+#### Installing terraform
+
+* For official docs
+
+    [ Refer here : https://developer.hashicorp.com/terraform/install ]
+
+* For the changes
+```
+terraform {
+  required_providers {
+    aws = {
+      source = "hashicorp/aws"
+      version = "4.58.0"
+    }
+  }
+}
+
+provider "aws" {
+  # Configuration options
+}
+
+resource "aws_s3_bucket" "b" {
+  bucket = "qt-tf-test-bucket"
+
+  tags = {
+    Name        = "My bucket"
+    Environment = "Dev"
+  }
+}
+
+resource "aws_s3_bucket_acl" "example" {
+  bucket = aws_s3_bucket.b.id
+  acl    = "private"
+}
+```
+* We have executed the commands in following order
+
+
+
+
+
+
+#### Developer Environment
+
+* Install Visual Studio Code
+* Ensure Terraform Extension is installed
+
+
+
+* For installing necessary softwares on your windows system
+
+    [ Refer here : https://www.youtube.com/watch?v=9guzVbZPGuw&t=703s ]
+
+#### Let's try to create a basic terraform template
+
+* Create a new folder `hellotf`
+* open visual studio code
+* Create a new file `main.tf` with extension `.tf`
+* Choose any provider 
+
+    [ Refer Here : https://registry.terraform.io/browse/providers?tier=official ]
+
+* For aws provider
+
+    [ Refer here : https://registry.terraform.io/providers/hashicorp/aws/latest ]
+
+* Let's do the same with azure Refer Here for the changes
