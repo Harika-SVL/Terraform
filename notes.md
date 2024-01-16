@@ -1,17 +1,18 @@
-### Problem Statement
+#### Problem Statement
 
-* Our ficticious Organization:
+* `Our ficticious Organization`:
     * _**name**_ : Asquare info systems
     * _**Product**_ : iEcommerce
     * _**Purpose**_ : Any Organization can buy this project and host ecommerce applications
-* This product is designed to work on any virtualized platform such as
+* This product is designed to work on any virtualized platform such as :
     * VMWare
     * OpenStack
     * AWS
     * Azure
     * GCP
-* Now Asquare info systems needs to have an apporach to deploy the iEcommerce applicatio into Customers Cloud/Virtual Environments
-* Architecture of iECommerce : 
+* Now `Asquare info systems` needs to have an apporach to deploy the iEcommerce application into customers `Cloud/Virtual Environments`
+
+#### Architecture of iECommerce : 
 
 ![Alt text](shots/1.PNG)
 
