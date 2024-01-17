@@ -114,11 +114,11 @@ resource "aws_s3_bucket_acl" "example" {
 
     [ Refer here : https://www.youtube.com/watch?v=9guzVbZPGuw&t=703s ]
 
-#### Let's try to create a basic terraform template
+#### Creating basic terraform template
 
 * Create a new folder `hellotf`
 * open visual studio code
-* Create a new file `main.tf` with extension `.tf`
+* Create a new file `main` with extension `.tf` - _**main.tf**_
 * Choose any provider 
 
     [ Refer Here : https://registry.terraform.io/browse/providers?tier=official ]
@@ -127,6 +127,40 @@ resource "aws_s3_bucket_acl" "example" {
 
     [ Refer here : https://registry.terraform.io/providers/hashicorp/aws/latest ]
 
-* Let'
+* Let's do the same with azure 
+```
+terraform {
+  required_providers {
+    azurerm = {
+      source = "hashicorp/azurerm"
+      version = "3.47.0"
+    }
+  }
+}
 
-s do the same with azure Refer Here for the changes
+provider "azurerm" {
+    features {}
+}
+
+resource "azurerm_resource_group" "example" {
+  name     = "example-resources"
+  location = "West Europe"
+}
+
+resource "azurerm_storage_account" "example" {
+  name                     = "qttftestaccount"
+  resource_group_name      = azurerm_resource_group.example.name
+  location                 = azurerm_resource_group.example.location
+  account_tier             = "Standard"
+  account_replication_type = "GRS"
+
+  tags = {
+    environment = "staging"
+  }
+}
+```
+
+
+
+* Terraform basic workflow
+
