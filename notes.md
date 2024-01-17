@@ -56,16 +56,18 @@
 
 #### Terms
 
-* _**Resource**_ : This is the infrastructure which you want to create
-* _**Provider**_ : This refers to where you want to create infrastructure
-* The `inputs` which we express in terraform are called as `arguments`
-* The `output` given by terraform is referred as ` attribute`
+* _**Resource**_ : The infrastructure `which you want to create`
+* _**Provider**_ : To `where you want to create` the infrastructure
+* _**Arguments**_ : The `inputs` which we express in terraform 
+* _**Attribute**_ : The `output` given by terraform 
 
 #### Installing terraform
 
 * For official docs
 
     [ Refer here : https://developer.hashicorp.com/terraform/install ]
+
+![Alt text](shots/4.PNG)
 
 * For the changes
 ```
