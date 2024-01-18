@@ -69,48 +69,12 @@
 
 ![Alt text](shots/4.PNG)
 
-* For the changes
-```
-terraform {
-  required_providers {
-    aws = {
-      source = "hashicorp/aws"
-      version = "4.58.0"
-    }
-  }
-}
-
-provider "aws" {
-  # Configuration options
-}
-
-resource "aws_s3_bucket" "b" {
-  bucket = "qt-tf-test-bucket"
-
-  tags = {
-    Name        = "My bucket"
-    Environment = "Dev"
-  }
-}
-
-resource "aws_s3_bucket_acl" "example" {
-  bucket = aws_s3_bucket.b.id
-  acl    = "private"
-}
-```
-* We have executed the commands in following order
-
-
-
-
-
-
 #### Developer Environment
 
 * Install Visual Studio Code
 * Ensure Terraform Extension is installed
 
-
+![Alt text](shots/5.PNG)
 
 * For installing necessary softwares on your windows system
 
@@ -129,7 +93,53 @@ resource "aws_s3_bucket_acl" "example" {
 
     [ Refer here : https://registry.terraform.io/providers/hashicorp/aws/latest ]
 
-* Let's do the same with azure 
+* Creating a template with `AWS`
+```
+terraform {
+  required_providers {
+    aws = {
+      source = "hashicorp/aws"
+      version = "4.58.0"
+    }
+  }
+}
+
+provider "aws" {
+  # Configuration options
+}
+
+resource "aws_s3_bucket" "b" {
+  bucket = "tf-s3-test-bucket"
+
+  tags = {
+    Name        = "My bucket"
+    Environment = "Dev"
+  }
+}
+
+resource "aws_s3_bucket_acl" "example" {
+  bucket = aws_s3_bucket.b.id
+  acl    = "private"
+}
+```
+* We have executed the commands in following order
+```
+terraform apply     **
+terraform init      #initialization
+terraform apply     #applying the infra
+yes                 #approval to create infra
+terraform apply     #already existing
+terraform destroy   #deleting the created infra
+```
+
+
+
+
+
+
+
+
+* Creating a template with `Azure`
 ```
 terraform {
   required_providers {
@@ -161,8 +171,71 @@ resource "azurerm_storage_account" "example" {
   }
 }
 ```
+#### Basic workflow
+
+![Alt text](shots/6.PNG)
+
+#### N-Tier Application
+
+* Consider the following architecture of a typical web application (ticket booking)
+
+![Alt text](shots/7.PNG)
+
+* To realize this application on `AWS`, the high level overview is :
+
+![Alt text](shots/8.PNG)
+
+* To realize this application on `Azure`, the high level overview is :
+
+![Alt text](shots/9.PNG)
+
+#### WOW (Ways of Working)
+
+* Let's realize the architecture manually, make a note of :
+  * resource
+  * inputs
+  * outputs
+* Find resources in terraform to acheive the above manual steps
+
+### Configuring a Provider in Terraform
+
+#### Install Terraform on a linux machine
+
+* Create a _**linux vm**_ and _**ssh**_ into it and execute the steps based on your distribution from here 
+
+[ Refer here : https://developer.hashicorp.com/terraform/install ]
 
 
 
-* Terraform basic workflow
+#### AWS Provider
 
+* Terraform aws provider uses the `AWS API's` to get the infra created
+* To Create infrastructure in your AWS Account, it needs `AWS programatic credentials (_**Secret access key and access key**_)`
+* To configure these keys 
+
+  [ Refer here : https://registry.terraform.io/providers/hashicorp/aws/latest/docs#authentication-and-configuration ]
+
+* Create `IAM user` _**Secret access key**_ and _**Access key**_ and for manual steps
+
+  [ Refer here : https://sst.dev/chapters/create-an-iam-user.html ]
+
+* Let's write provider configuration
+```
+provider "aws" {
+  region     = "us-west-2"
+  access_key = "my-access-key"
+  secret_key = "my-secret-key"
+}
+```
+* This is not a great way as we are having sensitive information in the text format
+* Best way is to _**install aws cli**_ on the machine with terraform and terraform will _**automatically pickup credentials**_ from there
+* Installing aws cli 
+
+  [ Refer here : https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html ]
+
+* Now your provider can be as simple as
+```
+provider "aws" {
+    region = "us-west-2"
+}
+```
