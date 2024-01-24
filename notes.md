@@ -201,7 +201,7 @@ resource "azurerm_storage_account" "example" {
 
 #### Install Terraform on a linux machine
 
-* Create a _**linux vm**_ and _**ssh**_ into it and execute the steps based on your distribution from here 
+* Create a _**linux VM**_ and _**ssh**_ into it and execute the steps based on your distribution from here 
 
 [ Refer here : https://developer.hashicorp.com/terraform/install ]
 
