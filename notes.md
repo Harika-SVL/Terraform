@@ -203,7 +203,7 @@ resource "azurerm_storage_account" "example" {
 
 * Create a _**linux VM**_ and _**ssh**_ into it and execute the steps based on your distribution from here 
 
-[ Refer here : https://developer.hashicorp.com/terraform/install ]
+[ Refer here : https://developer.hashicorp.com/terraform/install#Linux ]
 
 
 
@@ -211,6 +211,9 @@ resource "azurerm_storage_account" "example" {
 
 * Terraform aws provider uses the `AWS API's` to get the infra created
 * To Create infrastructure in your AWS Account, it needs `AWS programatic credentials (_**Secret access key and access key**_)`
+
+![Alt text](shots/10.PNG)
+
 * To configure these keys 
 
   [ Refer here : https://registry.terraform.io/providers/hashicorp/aws/latest/docs#authentication-and-configuration ]
@@ -219,7 +222,13 @@ resource "azurerm_storage_account" "example" {
 
   [ Refer here : https://sst.dev/chapters/create-an-iam-user.html ]
 
-* Let's write provider configuration
+* Create `sampletf` folder and in it `main.tf`
+```
+mkdir sampletf
+cd sampletf/
+vi main.tf
+```
+* Let's write provider configuration in `main.tf`
 ```
 provider "aws" {
   region     = "us-west-2"
@@ -227,15 +236,41 @@ provider "aws" {
   secret_key = "my-secret-key"
 }
 ```
+* Run it using commands
+```
+terraform init
+terraform validate
+```
 * This is not a great way as we are having sensitive information in the text format
 * Best way is to _**install aws cli**_ on the machine with terraform and terraform will _**automatically pickup credentials**_ from there
 * Installing aws cli 
 
   [ Refer here : https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html ]
 
-* Now your provider can be as simple as
+```
+cd ~
+sudo apt install unzip -y
+curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+unzip awscliv2.zip
+sudo ./aws/install
+aws --version
+aws configure
+    ## give the access key, secret key and region
+```
+* Create a new folder `test2`
+```
+mkdir test2
+cd test2/
+vi main.tf
+```
+* Now your provider can be as simple as `main.tf` and execute it with the commands
 ```
 provider "aws" {
     region = "us-west-2"
 }
+```
+```
+terraform init
+terraform validate
+terraform destroy
 ```
