@@ -274,3 +274,31 @@ terraform init
 terraform validate
 terraform destroy
 ```
+### Azure Provider
+
+* For the provider documentation
+
+  [ Refer here : https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs ]
+
+* To install azure cli and to authenticate azure cli
+
+  [ Refer Here : https://learn.microsoft.com/en-us/cli/azure/install-azure-cli-linux?pivots=apt#option-1-install-with-one-command ]
+  
+```
+az login
+az group list  
+```
+### Providers and resources
+
+* In terraform to create any resource we need to configure provdier
+* Every provider has a specific structure
+```
+provider "<name>" {
+    <ARGUMENT-1> = <VALUE-1>
+    ..
+    ..
+    ..
+    <ARGUMENT-N> = <VALUE-N>
+}
+```
+* 
