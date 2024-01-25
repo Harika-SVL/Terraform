@@ -301,4 +301,28 @@ provider "<name>" {
     <ARGUMENT-N> = <VALUE-N>
 }
 ```
-* 
+* the type of resource will be in the form of `<provider>_<resource_type>`
+
+### Manual Steps of VPC Creation
+
+* Steps : Let's create a simple vpc
+* Lets search for resource which lead to 
+  [ Refer Here : https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/vpc ]
+
+* Now look at arguments 
+
+  [ Refer Here : https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/vpc#argument-reference ]
+
+* Create the template as shown in this changeset 
+```
+provider "aws" {
+}
+
+resource "aws_vpc" "ntier" {
+    cidr_block = "192.168.0.0/16"
+    tags = {
+        Name = "ntier"
+    }
+}
+```
+* Now validate and apply
