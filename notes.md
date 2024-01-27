@@ -422,5 +422,163 @@ terraform destroy
 * To Work effectively with terrform templates we need to understand Hashicorp Configuration Language
 * How to parametrize the template
 
-### 
+### Hashicorp Configuration Language (HCL) for Terraform
 
+* _**For Specification**_ 
+
+  [ Refer Here : https://github.com/hashicorp/hcl/blob/main/hclsyntax/spec.md ]
+
+* _**Provider**_ 
+
+  [ Refer Here : https://developer.hashicorp.com/terraform/language/providers ]
+
+* The terraform block helps in configuring the provider with _**version of the provider from registry**_ 
+
+  [ Refer Here : https://developer.hashicorp.com/terraform/language/settings ]
+
+* To specify which version of terraform you should be using, we use `required_version`. To specify constraints :
+
+  [ Refer Here : https://developer.hashicorp.com/terraform/language/expressions/version-constraints ]
+
+* For changes
+```
+terraform {
+  required_version = ">= 1.0.0"
+  required_providers {
+    aws = {
+        source = "hashicorp/aws"
+        version = ">= 4.47.0"
+    }
+  }
+}
+
+provider "aws" {
+}
+resource "aws_vpc" "ntier" {
+    cidr_block = "192.168.0.0/16"
+    tags = {
+        Name = "ntier"
+    }
+}
+```
+### Parametrizing Terraform
+
+### Input Variables
+
+* For input variables official docs
+
+  [ Refer here : https://developer.hashicorp.com/terraform/language/values/variables ]
+
+* For _**inputs terraform supports**_ the following _**types**_
+  * number
+  * string
+  * boolean
+  * list()
+  * set()
+  * map()
+  * object({ = , … })
+  * tuple([, …])
+* To _**pass variables**_ while executing commands we have two options :
+  * -var
+  * -var-file
+* using `-var` 
+
+  [ Refer Here : https://developer.hashicorp.com/terraform/language/values/variables#variables-on-the-command-line ]
+
+`terraform apply -var "region=ap-south-2" -var "ntier-vpc-range=10.10.0.0/16"`
+* For the changes to use variables `inputs.tf`
+```
+variable "region" {
+  type        = string
+  default     = "us-west-2"
+  description = "Region to create resources"
+}
+
+variable "ntier-vpc-range" {
+  type        = string
+  default     = "192.168.0.0/16"
+  description = "VPC Cidr Range"
+}
+```
+* `main.tf`
+```
+resource "aws_vpc" "ntier" {
+  cidr_block = var.ntier-vpc-range
+  tags = {
+    Name = "ntier"
+  }
+}
+```
+* `provider.tf`
+```
+terraform {
+  required_version = ">= 1.0.0"
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = ">= 4.47.0"
+    }
+  }
+}
+
+provider "aws" {
+  region = var.region
+}
+```
+* using variable definitions 
+
+  [ Refer Here : https://developer.hashicorp.com/terraform/language/values/variables#variable-definitions-tfvars-files ]
+  * example `terraform apply -var-file values.tfvars`
+* For the changes in azure terraform template
+`inputs.tf`
+```
+variable "location" {
+  type        = string
+  default     = "eastus"
+  description = "location to create resource"
+}
+
+variable "vnet-range" {
+  type        = list(string)
+  default     = ["192.168.0.0/16"]
+  description = "cidr range of vnet"
+}
+```
+* `main.tf`
+```
+resource "azurerm_resource_group" "ntierrg" {
+  location = var.location
+  name     = "ntier-rg"
+}
+
+resource "azurerm_virtual_network" "ntiervnet" {
+  name                = "ntier-vnet"
+  resource_group_name = "ntier-rg"
+  address_space       = var.vnet-range
+  location            = var.location
+  depends_on = [
+    azurerm_resource_group.ntierrg
+  ]
+}
+```
+* `provider.tf`
+```
+terraform {
+  required_version = ">= 1.0.0"
+  required_providers {
+    azurerm = {
+      source  = "hashicorp/azurerm"
+      version = ">= 3.48.0"
+    }
+  }
+}
+
+provider "azurerm" {
+  features {}
+}
+```
+* `tf.vars`
+```
+location   = "eastus"
+vnet-range = ["10.100.0.0/16"]
+```
