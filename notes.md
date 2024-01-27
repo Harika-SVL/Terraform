@@ -326,3 +326,60 @@ resource "aws_vpc" "ntier" {
 }
 ```
 * Now validate and apply
+
+### Activity: Create virtual network in Azure
+
+* Manual Steps:
+  * Create resource group
+
+![Alt text](shots/11.PNG)
+![Alt text](shots/12.PNG)
+![Alt text](shots/13.PNG)
+
+  * Create a _**VNET**_ with cidr range `192.168.0.0/16`
+
+![Alt text](shots/14.PNG)
+![Alt text](shots/15.PNG)
+
+### Writing template for the above in terraform
+
+* Terraform takes the folder as input and reads all the `.tf` files and while validating, applying or destroying tries to treat all the `.tf` files as one file
+* To create dependencies we can use depends on meta argument 
+
+  [ Refer Here : https://developer.hashicorp.com/terraform/language/meta-arguments/depends_on ]
+
+* The resource name in terraform is `<resource_type>.<name>`
+* For the changeset `main.tf`
+```
+resource "azurerm_resource_group" "ntierrg" {
+  location = "eastus"
+  name     = "ntier-rg"
+}
+
+resource "azurerm_virtual_network" "ntiervnet" {
+  name                = "ntier-vnet"
+  resource_group_name = "ntier-rg"
+  address_space       = ["192.168.0.0/16"]
+  location            = "eastus"
+  depends_on = [
+    azurerm_resource_group.ntierrg
+  ]
+}
+```
+* Changeset `provider.tf`
+```
+provider "azurerm" {
+  features {}
+}
+```
+![Alt text](shots/16.PNG)
+
+* Note:
+  * The commands which we started following `init, fmt, validate, apply`
+
+### Focus Points
+
+* To Work effectively with terrform templates we need to understand Hashicorp Configuration Language
+* How to parametrize the template
+
+
