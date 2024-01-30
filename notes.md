@@ -901,3 +901,7 @@ resource "azurerm_subnet" "subnets" {
 ### Ntier on Azure
 
 * We need to create the following network
+
+![Alt text](shots/18.PNG)
+
+
