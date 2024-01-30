@@ -788,3 +788,116 @@ resource "aws_subnet" "subnets" {
   }
 }
 ```
+### AWS
+
+* Let's generate subnet cidr range
+
+* For the changes done to use cidr subnet function and object input type `inputs.tf`
+```
+variable "region" {
+  type        = string
+  default     = "us-west-2"
+  description = "Region to create resources"
+}
+
+variable "ntier_vpc_info" {
+  type = object({
+    vpc_cidr     = string,
+    subnet_azs   = list(string),
+    subnet_names = list(string)
+  })
+  default = {
+    subnet_azs   = ["a", "b", "a", "b"]
+    subnet_names = ["app1", "app2", "db1", "db2"]
+    vpc_cidr     = "192.168.0.0/16"
+  }
+}
+```
+  * `main.tf`
+```
+resource "aws_vpc" "ntier" {
+  cidr_block = var.ntier_vpc_info.vpc_cidr
+  tags = {
+    Name = "ntier"
+  }
+}
+
+resource "aws_subnet" "subnets" {
+  count             = length(var.ntier_vpc_info.subnet_names)
+  cidr_block        = cidrsubnet(var.ntier_vpc_info.vpc_cidr, 8, count.index)
+  availability_zone = "${var.region}${var.ntier_vpc_info.subnet_azs[count.index]}"
+  vpc_id            = aws_vpc.ntier.id #implicit dependency
+  depends_on = [
+    aws_vpc.ntier
+  ]
+  tags = {
+     Name = var.ntier_vpc_info.subnet_names[count.index]
+  }
+}
+```
+  * `values.tfvars`
+```
+region = "us-west-2"
+ntier_vpc_info = {
+  subnet_azs   = ["a", "b", "a", "b","a", "b"]
+  subnet_names = ["app1", "app2", "db1", "db2", "web1", "web2"]
+  vpc_cidr     = "192.168.0.0/16"
+}
+```
+* Terraform plan is generated whenever we apply
+
+### Azure
+
+* Let's add subnets, refer below for manual steps
+* For the changes done `.terraform.tfstate.lock.info`
+```
+{"ID":"369b9c9c-99ce-574e-b2dc-248e60926f4e","Operation":"OperationTypeApply","Info":"","Who":"DESKTOP-TM7SH71\\Dell@DESKTOP-TM7SH71","Version":"1.3.9","Created":"2023-03-23T03:39:17.249786Z","Path":"terraform.tfstate"}
+```
+  * `inputs.tf`
+```
+variable "location" {
+  type        = string
+  default     = "eastus"
+  description = "location to create resource"
+}
+variable "vnet-range" {
+  type        = list(string)
+  default     = ["192.168.0.0/16"]
+  description = "cidr range of vnet"
+}
+
+variable "subnet_names" {
+  type    = list(string)
+  default = ["web", "app", "db"]
+}
+```
+  * `main.tf`
+```
+resource "azurerm_resource_group" "ntierrg" {
+  location = var.location
+  name     = "ntier-rg"
+}
+resource "azurerm_virtual_network" "ntiervnet" {
+  name                = "ntier-vnet"
+  resource_group_name = "ntier-rg"
+  address_space       = var.vnet-range
+  location            = var.location
+  depends_on = [
+    azurerm_resource_group.ntierrg
+  ]
+}
+
+resource "azurerm_subnet" "subnets" {
+  count                = length(var.subnet_names)
+  name                 = var.subnet_names[count.index]
+  resource_group_name  = azurerm_resource_group.ntierrg.name
+  virtual_network_name = azurerm_virtual_network.ntiervnet.name
+  address_prefixes     = [cidrsubnet(var.vnet-range[0], 8, count.index)]
+  depends_on = [
+    azurerm_virtual_network.ntiervnet
+  ]
+}
+```
+### Ntier on Azure
+
+* We need to create the following network
