@@ -582,3 +582,209 @@ provider "azurerm" {
 location   = "eastus"
 vnet-range = ["10.100.0.0/16"]
 ```
+### AWS – ntier
+
+* Expectation
+
+![Alt text](shots/17.PNG)
+
+* Manual steps
+
+=> select VPC => Subnets => Create subnet => select VPC ID => Give name, Availability zone, CIDR block
+
+* To access outputs i.e. attributes of a resource syntax is `<resoure_type>.<name>.<atrribute-name>`
+* For the changes done `inputs.tf`
+```
+variable "region" {
+  type        = string
+  default     = "us-west-2"
+  description = "Region to create resources"
+}
+variable "ntier-vpc-range" {
+  type        = string
+  default     = "192.168.0.0/16"
+  description = "VPC Cidr Range"
+}
+
+variable "ntier-app1-cidr" {
+  type    = string
+  default = "192.168.0.0/24"
+}
+
+variable "ntier-app2-cidr" {
+  type    = string
+  default = "192.168.1.0/24"
+}
+
+variable "ntier-db1-cidr" {
+  type    = string
+  default = "192.168.2.0/24"
+}
+
+variable "ntier-db2-cidr" {
+  type    = string
+  default = "192.168.3.0/24"
+}
+```
+  * `main.tf`
+```
+resource "aws_vpc" "ntier" {
+  cidr_block = var.ntier-vpc-range
+  tags = {
+    Name = "ntier"
+  }
+
+}
+
+resource "aws_subnet" "app1" {
+  cidr_block        = var.ntier-app1-cidr
+  availability_zone = "${var.region}a"
+  vpc_id            = aws_vpc.ntier.id #implicit dependency
+  tags = {
+    Name = "app1"
+  }
+  depends_on = [
+    aws_vpc.ntier
+  ]
+
+}
+
+resource "aws_subnet" "app2" {
+  cidr_block        = var.ntier-app2-cidr
+  availability_zone = "${var.region}b"
+  vpc_id            = aws_vpc.ntier.id #implicit dependency
+  tags = {
+    Name = "app2"
+  }
+  depends_on = [
+    aws_vpc.ntier
+  ]
+}
+
+resource "aws_subnet" "db1" {
+  cidr_block        = var.ntier-db1-cidr
+  availability_zone = "${var.region}a"
+  vpc_id            = aws_vpc.ntier.id #implicit dependency
+  tags = {
+    Name = "db1"
+  }
+  depends_on = [
+    aws_vpc.ntier
+  ]
+}
+
+resource "aws_subnet" "db2" {
+  cidr_block        = var.ntier-db2-cidr
+  availability_zone = "${var.region}b"
+  vpc_id            = aws_vpc.ntier.id #implicit dependency
+  tags = {
+    Name = "db2"
+  }
+  depends_on = [
+    aws_vpc.ntier
+  ]
+}
+```
+  * values.tfvars
+```
+region          = "us-west-2"
+ntier-vpc-range = "10.100.0.0/16"
+ntier-app1-cidr = "10.100.0.0/24"
+ntier-app2-cidr = "10.100.1.0/24"
+ntier-db1-cidr  = "10.100.2.0/24"
+ntier-db2-cidr  = "10.100.3.0/24"
+```
+* To create multiple resources 
+
+  [ Refer Here : https://developer.hashicorp.com/terraform/language/meta-arguments/count ]
+
+* Let's apply the count for subnet creation, for changes
+  * `inputs.tf`
+```
+variable "region" {
+  type        = string
+  default     = "us-west-2"
+  description = "Region to create resources"
+}
+variable "ntier-vpc-range" {
+  type        = string
+  default     = "192.168.0.0/16"
+  description = "VPC Cidr Range"
+}
+
+variable "ntier-subnet-cidrs" {
+  type    = list(string)
+  default = ["192.168.0.0/24", "192.168.1.0/24", "192.168.2.0/24", "192.168.3.0/24"]
+}
+
+variable "ntier-subnet-azs" {
+  type    = list(string)
+  default = ["a", "b", "a", "b"]
+}
+
+variable "ntier-subnet-names" {
+  type    = list(string)
+  default = ["app1", "app2", "db1", "db2"]
+}
+```
+  * `main.tf`
+```
+resource "aws_vpc" "ntier" {
+  cidr_block = var.ntier-vpc-range
+  tags = {
+    Name = "ntier"
+  }
+}
+
+resource "aws_subnet" "subnets" {
+  count             = 4
+  cidr_block        = var.ntier-subnet-cidrs[count.index]
+  availability_zone = "${var.region}${var.ntier-subnet-azs[count.index]}"
+  vpc_id            = aws_vpc.ntier.id #implicit dependency
+  depends_on = [
+    aws_vpc.ntier
+  ]
+  tags = {
+    Name = var.ntier-subnet-names[count.index]
+  }
+  depends_on = [
+    aws_vpc.ntier
+  ]
+}
+```
+  * `values.tfvars`
+```
+region             = "us-west-2"
+ntier-vpc-range    = "10.100.0.0/16"
+ntier-subnet-cidrs = ["10.100.0.0/24", "10.100.1.0/24", "10.100.2.0/24", "10.100.3.0/24"]
+```
+* Let's start using terraform functions to make further improvements using terraform functions 
+
+  [ Refer Here : https://developer.hashicorp.com/terraform/language/functions ]
+
+* Let's replace static count of 4 with length function 
+
+  [ Refer Here : https://developer.hashicorp.com/terraform/language/functions/length ]
+
+* For changeset `main.tf`
+```
+resource "aws_vpc" "ntier" {
+  cidr_block = var.ntier-vpc-range
+  tags = {
+    Name = "ntier"
+  }
+}
+
+resource "aws_subnet" "subnets" {
+  count             = length(var.ntier-subnet-cidrs)
+  cidr_block        = var.ntier-subnet-cidrs[count.index]
+  availability_zone = "${var.region}${var.ntier-subnet-azs[count.index]}"
+  vpc_id            = aws_vpc.ntier.id #implicit dependency
+  depends_on = [
+    aws_vpc.ntier
+  ]
+  tags = {
+    Name = var.ntier-subnet-names[count.index]
+  }
+}
+```
