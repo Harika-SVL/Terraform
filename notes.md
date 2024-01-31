@@ -904,4 +904,131 @@ resource "azurerm_subnet" "subnets" {
 
 ![Alt text](shots/18.PNG)
 
+* replaced hardcode names for resource group and vnet with variable 
+* For the changes `dev.tfvars`
+```
+location     = "eastus"
+vnet_range   = ["10.0.0.0/16"]
+subnet_names = ["app", "db"]
+```
+  * `inputs.tf`
+```
+variable "location" {
+  type        = string
+  default     = "eastus"
+  description = "location to create resource"
+}
 
+variable "vnet_range" {
+  type        = list(string)
+  default     = ["192.168.0.0/16"]
+  description = "cidr range of vnet"
+}
+variable "subnet_names" {
+  type    = list(string)
+  default = ["web", "app", "db"]
+}
+
+variable "names" {
+  type = object({
+    resource_group = string
+    vnet           = string
+  })
+  default = {
+    resource_group = "ntier-rg"
+    vnet           = "ntier-vnet"
+  }
+}
+```
+  * `main.tf`
+```
+resource "azurerm_resource_group" "ntierrg" {
+  location = var.location
+    name     = var.names.resource_group
+  tags = {
+    Env       = "Dev"
+    CreatedBy = "Terraform"
+  }
+}
+
+
+resource "azurerm_virtual_network" "ntiervnet" {
+    name                = var.names.vnet
+  resource_group_name = azurerm_resource_group.ntierrg.name
+  address_space       = var.vnet_range
+  location            = var.location
+  depends_on = [
+    azurerm_resource_group.ntierrg
+  ]
+    tags = {
+    Env       = "Dev"
+    CreatedBy = "Terraform"
+  }
+}
+
+resource "azurerm_subnet" "subnets" {
+  count                = length(var.subnet_names)
+  name                 = var.subnet_names[count.index]
+  resource_group_name  = azurerm_resource_group.ntierrg.name
+  virtual_network_name = azurerm_virtual_network.ntiervnet.name
+    address_prefixes     = [cidrsubnet(var.vnet_range[0], 8, count.index)]
+  depends_on = [
+    azurerm_virtual_network.ntiervnet
+  ]
+}
+```
+
+
+### Let's try to Create Azure SQL Database
+
+* Manual steps: 
+
+  [ Refer Here : https://learn.microsoft.com/en-us/azure/azure-sql/database/single-database-create-quickstart?view=azuresql&tabs=azure-portal ]
+
+* We need to Create SQL Server and then database
+* For the changes done to create sql server
+  * `database.tf`
+```
+resource "azurerm_mssql_server" "sql_server" {
+  name                         = var.names.sql_server
+  resource_group_name          = azurerm_resource_group.ntierrg.name
+  location                     = azurerm_resource_group.ntierrg.location
+  version                      = "12.0"
+  administrator_login          = "devops"
+  administrator_login_password = "ThisPasswordisnotgreat@1"
+  tags = {
+    Env       = "Dev"
+    CreatedBy = "Terraform"
+  }
+}
+```
+  * `inputs.tf`
+```
+variable "location" {
+  type        = string
+  default     = "eastus"
+  description = "location to create resource"
+}
+variable "vnet_range" {
+  type        = list(string)
+  default     = ["192.168.0.0/16"]
+  description = "cidr range of vnet"
+}
+variable "subnet_names" {
+  type    = list(string)
+  default = ["web", "app", "db"]
+}
+variable "names" {
+  type = object({
+    resource_group = string
+    vnet           = string
+    sql_server     = string
+  })
+  default = {
+    resource_group = "ntier-rg"
+    vnet           = "ntier-vnet"
+    sql_server     = "qtntierdb-dev"
+  }
+}
+```
+* Execution and Database creation are pending
