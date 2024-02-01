@@ -1033,4 +1033,208 @@ variable "names" {
 ```
 * Execution and Database creation are pending
 
-### 
+### Terms
+
+* Configuration Drift:
+    * Difference between actual and desired state
+    * In Terraform plan represents drift
+
+### Creating Database in Azure using Terraform
+
+* We have added the resource to create sql server on azure and applied the template. For the changes 
+  * `database.tf`
+```
+resource "azurerm_mssql_server" "sql_server" {
+  name                         = var.names.sql_server
+  resource_group_name          = azurerm_resource_group.ntierrg.name
+  location                     = azurerm_resource_group.ntierrg.location
+  version                      = "12.0"
+  administrator_login          = "devops"
+  administrator_login_password = "ThisPasswordisnotgreat@1"
+  tags = {
+    Env       = "Dev"
+    CreatedBy = "Terraform"
+  }
+  depends_on = [
+    azurerm_resource_group.ntierrg,
+    azurerm_virtual_network.ntiervnet
+  ]
+}
+
+resource "azurerm_mssql_database" "sql_emp_db" {
+  name      = "employees"
+  server_id = azurerm_mssql_server.sql_server.id
+  sku_name  = "Basic"
+  tags = {
+    Env       = "Dev"
+    CreatedBy = "Terraform"
+  }
+
+  depends_on = [
+    azurerm_mssql_server.sql_server
+  ]
+}
+```
+
+
+* Terraform graph command creates dependency graphs in dot format which can be visualized in Graphviz. For the command
+
+  [ Refer here : https://developer.hashicorp.com/terraform/cli/commands/graph ]
+
+
+### Create VMs in Azure using terraform
+
+* Overview of our goal
+
+![Alt text](shots/19.PNG)
+
+* For manual steps
+
+  [ Refer here : https://learn.microsoft.com/en-us/azure/virtual-machines/linux/quick-create-portal?tabs=ubuntu ]
+
+* For changes
+  * `app.tf`
+```
+resource "azurerm_network_interface" "appserver_nic" {
+  name                = "appservernic"
+  location            = azurerm_resource_group.ntierrg.location
+  resource_group_name = azurerm_resource_group.ntierrg.name
+
+  ip_configuration {
+    name      = "appserverip"
+    subnet_id = azurerm_subnet.subnets[var.appsubnet_index].id
+    private_ip_address_allocation = "Dynamic"
+  }
+
+  depends_on = [
+    azurerm_subnet.subnets
+  ]
+
+}
+
+resource "azurerm_linux_virtual_machine" "appserver" {
+  name                = "appserver1"
+  location            = azurerm_resource_group.ntierrg.location
+  resource_group_name = azurerm_resource_group.ntierrg.name
+  admin_username      = "qtdevops"
+  admin_password      = "ThisPasswordisnotgreat@1"
+  disable_password_authentication = false
+  source_image_reference {
+    publisher = "Canonical"
+    offer     = "0001-com-ubuntu-server-focal"
+    sku       = "20_04-lts-gen2"
+    version   = "latest"
+  }
+  size = "Standard_B1s"
+  network_interface_ids = [
+    azurerm_network_interface.appserver_nic.id
+  ]
+  os_disk {
+    caching              = "ReadWrite"
+    storage_account_type = "Standard_LRS"
+  }
+
+  depends_on = [
+    azurerm_network_interface.appserver_nic
+  ]
+}
+```
+  * `database.tf`
+```
+resource "azurerm_mssql_server" "sql_server" {
+  name                         = var.names.sql_server
+  resource_group_name          = azurerm_resource_group.ntierrg.name
+  location                     = azurerm_resource_group.ntierrg.location
+  version                      = "12.0"
+  administrator_login          = "devops"
+  administrator_login_password = "ThisPasswordisnotgreat@1"
+  tags = {
+    Env       = "Dev"
+    CreatedBy = "Terraform"
+  }
+  depends_on = [
+    azurerm_resource_group.ntierrg,
+    azurerm_virtual_network.ntiervnet,
+    azurerm_subnet.subnets
+  ]
+}
+
+resource "azurerm_mssql_database" "sql_emp_db" {
+  name      = "employees"
+  server_id = azurerm_mssql_server.sql_server.id
+  sku_name  = "Basic"
+  tags = {
+    Env       = "Dev"
+    CreatedBy = "Terraform"
+  }
+  depends_on = [
+    azurerm_mssql_server.sql_server
+  ]
+}
+```
+  * `dev.tfvars`
+```
+location        = "eastus"
+vnet_range      = ["10.0.0.0/16"]
+subnet_names    = ["app", "db"]
+appsubnet_index = 0
+```
+  * `inputs.tf`
+```
+variable "location" {
+  type        = string
+  default     = "eastus"
+  description = "location to create resource"
+}
+variable "vnet_range" {
+  type        = list(string)
+  default     = ["192.168.0.0/16"]
+  description = "cidr range of vnet"
+}
+variable "subnet_names" {
+  type    = list(string)
+  default = ["web", "app", "db"]
+}
+variable "names" {
+  type = object({
+    resource_group = string
+    vnet           = string
+    sql_server     = string
+  })
+  default = {
+    resource_group = "ntier-rg"
+    vnet           = "ntier-vnet"
+    sql_server     = "qtntierdb-dev"
+  }
+}
+
+variable "appsubnet_index" {
+  type    = number
+  default = 1
+}
+```
+* We have created a vm without public ip and database connectivity between vm and sql is using internet. We will work on this actvities in next session
+* Improvements:
+  * Try to parametrize using variables and avoid creating too many variables by using object structure. For changes
+
+  * `app.tf`
+```
+resource "azurerm_network_interface" "appserver_nic" {
+  name                = var.network_interface_info.name
+  location            = azurerm_resource_group.ntierrg.location
+  resource_group_name = azurerm_resource_group.ntierrg.name
+
+  ip_configuration {
+    name      = "appserverip"
+    subnet_id = azurerm_subnet.subnets[var.appsubnet_index].id
+    private_ip_address_allocation = "Dynamic"
+    name                          = var.network_interface_info.ip_name
+    subnet_id                     = azurerm_subnet.subnets[var.network_interface_info.subnet_index].id
+    private_ip_address_allocation = var.network_interface_info.ip_allocation_method
+  }
+
+  depends_on = [
+    azurerm_subnet.subnets
+  ]
+}
+```
