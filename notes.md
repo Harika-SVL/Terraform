@@ -1219,15 +1219,12 @@ variable "appsubnet_index" {
 
   * `app.tf`
 ```
-resource "azurerm_network_interface" "appserver_nic" { 
+resource "azurerm_network_interface" "appserver_nic" {
   name                = var.network_interface_info.name
   location            = azurerm_resource_group.ntierrg.location
   resource_group_name = azurerm_resource_group.ntierrg.name
 
   ip_configuration {
-    name      = "appserverip"
-    subnet_id = azurerm_subnet.subnets[var.appsubnet_index].id
-    private_ip_address_allocation = "Dynamic"
     name                          = var.network_interface_info.ip_name
     subnet_id                     = azurerm_subnet.subnets[var.network_interface_info.subnet_index].id
     private_ip_address_allocation = var.network_interface_info.ip_allocation_method
@@ -1237,4 +1234,1027 @@ resource "azurerm_network_interface" "appserver_nic" {
     azurerm_subnet.subnets
   ]
 }
+
+resource "azurerm_linux_virtual_machine" "appserver" {
+  name                            = var.vm_info.name
+  location                        = azurerm_resource_group.ntierrg.location
+  resource_group_name             = azurerm_resource_group.ntierrg.name
+  admin_username                  = var.vm_info.username
+  admin_password                  = var.vm_info.password
+  disable_password_authentication = false
+  source_image_reference {
+    publisher = "Canonical"
+    offer     = "0001-com-ubuntu-server-focal"
+    sku       = "20_04-lts-gen2"
+    version   = "latest"
+  }
+  size = var.vm_info.size
+  network_interface_ids = [
+    azurerm_network_interface.appserver_nic.id
+  ]
+  os_disk {
+    caching              = "ReadWrite"
+    storage_account_type = "Standard_LRS"
+  }
+  depends_on = [
+    azurerm_network_interface.appserver_nic
+  ]
+}
 ```
+  * `database.tf`
+```
+resource "azurerm_mssql_server" "sql_server" {
+  name                         = var.names.sql_server
+  resource_group_name          = azurerm_resource_group.ntierrg.name
+  location                     = azurerm_resource_group.ntierrg.location
+  version                      = var.server_info.version
+  administrator_login          = var.server_info.username
+  administrator_login_password = var.server_info.password
+  tags = {
+    Env       = "Dev"
+    CreatedBy = "Terraform"
+  }
+  depends_on = [
+    azurerm_resource_group.ntierrg,
+    azurerm_virtual_network.ntiervnet,
+    azurerm_subnet.subnets
+  ]
+}
+
+resource "azurerm_mssql_database" "sql_emp_db" {
+  name      = var.database_info.name
+  server_id = azurerm_mssql_server.sql_server.id
+  sku_name  = var.database_info.sku
+  tags = {
+    Env       = "Dev"
+    CreatedBy = "Terraform"
+  }
+  depends_on = [
+    azurerm_mssql_server.sql_server
+  ]
+}
+``` 
+  * `dev.tfvars`
+```
+location     = "eastus"
+vnet_range   = ["10.0.0.0/16"]
+subnet_names = ["app", "db"]
+network_interface_info = {
+  ip_allocation_method = "Dynamic"
+  ip_name              = "appserverip"
+  name                 = "appservernic"
+  subnet_index         = 0
+}
+```
+  * `inputs.tf`
+```
+variable "location" {
+  type        = string
+  default     = "eastus"
+  description = "location to create resource"
+}
+variable "vnet_range" {
+  type        = list(string)
+  default     = ["192.168.0.0/16"]
+  description = "cidr range of vnet"
+}
+variable "subnet_names" {
+  type    = list(string)
+  default = ["web", "app", "db"]
+}
+variable "names" {
+  type = object({
+    resource_group = string
+    vnet           = string
+    sql_server     = string
+  })
+  default = {
+    resource_group = "ntier-rg"
+    vnet           = "ntier-vnet"
+    sql_server     = "qtntierdb-dev"
+  }
+}
+variable "server_info" {
+  type = object({
+    version  = string
+    username = string
+    password = string
+  })
+  default = {
+    password = "ThisPasswordisnotgreat@1"
+    username = "devops"
+    version  = "12.0"
+  }
+
+}
+
+variable "database_info" {
+  type = object({
+    name = string
+    sku  = string
+  })
+  default = {
+    name = "employees"
+    sku  = "Basic"
+  }
+
+}
+variable "network_interface_info" {
+  type = object({
+    name                 = string
+    ip_name              = string
+    subnet_index         = number
+    ip_allocation_method = string
+  })
+  default = {
+    ip_allocation_method = "Dynamic"
+    ip_name              = "appserverip"
+    name                 = "appservernic"
+    subnet_index         = 1
+  }
+}
+
+variable "vm_info" {
+  type = object({
+    name     = string
+    username = string
+    password = string
+    size     = string
+  })
+  default = {
+    name     = "appserver1"
+    password = "ThisPasswordisnotgreat@1"
+    size     = "Standard_B1s"
+    username = "qtdevops"
+  }
+}
+```
+### Terraform Datasources
+
+* Till now we have used terraform to create resources in provider. Terraform can also query the provider for various information
+* For official docs
+
+  [ Refer here : https://developer.hashicorp.com/terraform/language/data-sources ]
+
+### Terraform outputs
+
+* Terraform output is result which would be shown in the stdout
+* For official docs
+
+  [ Refer her : https://developer.hashicorp.com/terraform/language/values/outputs ]
+* Let's display private ip address and database endpoint as outputs, for the changes 
+  * `outputs.tf`
+```
+output "appserver_ip" {
+  value = azurerm_linux_virtual_machine.appserver.private_ip_address
+}
+
+output "database_endpoint" {
+  value = azurerm_mssql_server.sql_server.fully_qualified_domain_name
+
+}
+```
+### Ntier in AWS
+
+#### Making subnets public and private
+
+* Overview
+
+![alt text](shots/21.PNG)
+
+* Creating internet gateway and attach to vpc. For resource
+
+  [ Refer here : https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/internet_gateway ]
+
+* For the changes `network.tf`
+```
+resource "aws_vpc" "ntier" {
+  cidr_block = var.ntier_vpc_info.vpc_cidr
+  tags = {
+    Name = "ntier"
+  }
+}
+
+resource "aws_subnet" "subnets" {
+  count             = length(var.ntier_vpc_info.subnet_names)
+  cidr_block        = cidrsubnet(var.ntier_vpc_info.vpc_cidr, 8, count.index)
+  availability_zone = "${var.region}${var.ntier_vpc_info.subnet_azs[count.index]}"
+  vpc_id            = aws_vpc.ntier.id #implicit dependency
+  depends_on = [
+    aws_vpc.ntier
+  ]
+  tags = {
+    Name = var.ntier_vpc_info.subnet_names[count.index]
+  }
+}
+
+resource "aws_internet_gateway" "ntier_igw" {
+  vpc_id = aws_vpc.ntier.id
+  tags = {
+    Name = "ntier-igw"
+  }
+}
+```
+* Now let's create two route tables
+
+### Ntier in AWS Contd
+
+* So far we have created vpc with 6 subnets and attached internet gateway
+* Now let's create two route tables public and private
+* Terraform has locals where we can define the value for usage within template 
+
+  [ Refer Here : https://developer.hashicorp.com/terraform/language/values/locals ]
+
+### Create Route tables
+
+* For the changeset to add route tables
+  * `localvalues.tf`
+```
+locals {
+  vpc_id   = aws_vpc.ntier.id
+  anywhere = "0.0.0.0/0"
+}
+```
+  * `network.tf`
+```
+resource "aws_vpc" "ntier" {
+  cidr_block = var.ntier_vpc_info.vpc_cidr
+  tags = {
+    Name = "ntier"
+  }
+}
+resource "aws_subnet" "subnets" {
+  count             = length(var.ntier_vpc_info.subnet_names)
+  cidr_block        = cidrsubnet(var.ntier_vpc_info.vpc_cidr, 8, count.index)
+  availability_zone = "${var.region}${var.ntier_vpc_info.subnet_azs[count.index]}"
+    vpc_id            = local.vpc_id
+  depends_on = [
+    aws_vpc.ntier
+  ]
+  tags = {
+    Name = var.ntier_vpc_info.subnet_names[count.index]
+  }
+}
+
+resource "aws_internet_gateway" "ntier_igw" {
+  vpc_id = local.vpc_id
+  tags = {
+    Name = "ntier-igw"
+  }
+  depends_on = [
+    aws_vpc.ntier
+  ]
+}
+
+
+resource "aws_route_table" "private" {
+  vpc_id = local.vpc_id
+  tags = {
+    Name = "private"
+  }
+
+  depends_on = [
+    aws_subnet.subnets
+  ]
+}
+
+resource "aws_route_table" "public" {
+  vpc_id = local.vpc_id
+  tags = {
+    Name = "public"
+  }
+  route {
+    cidr_block = local.anywhere
+    gateway_id = aws_internet_gateway.ntier_igw.id
+  }
+
+  depends_on = [
+    aws_subnet.subnets
+  ]
+}
+```
+* For route table resource reference
+
+  [ Refer here : https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/route_table#argument-reference ]
+
+* Now we need to associate private route table with 4 subnets and public route table with 2 subnets. For the changes 
+  * `dev.tfvars`
+```
+region = "us-west-2"
+ntier_vpc_info = {
+  subnet_azs      = ["a", "b", "a", "b", "a", "b"]
+  subnet_names    = ["app1", "app2", "db1", "db2", "web1", "web2"]
+  vpc_cidr        = "192.168.0.0/16"
+  public_subnets  = ["web1", "web2"]
+  private_subnets = ["app1", "app2", "db1", "db2"]
+}
+```
+  * `inputs.tf`
+```
+variable "region" {
+  type        = string
+  default     = "us-west-2"
+  description = "Region to create resources"
+}
+
+variable "ntier_vpc_info" {
+  type = object({
+    vpc_cidr        = string,
+    subnet_azs      = list(string),
+    subnet_names    = list(string),
+    private_subnets = list(string),
+    public_subnets  = list(string)
+  })
+  default = {
+     subnet_azs      = ["a", "b", "a", "b"]
+    subnet_names    = ["app1", "app2", "db1", "db2"]
+    vpc_cidr        = "192.168.0.0/16"
+    public_subnets  = []
+    private_subnets = ["app1", "app2", "db1", "db2"]
+  }
+}
+```
+  * `network.tf`
+```
+resource "aws_vpc" "ntier" {
+  cidr_block = var.ntier_vpc_info.vpc_cidr
+  tags = {
+    Name = "ntier"
+  }
+}
+
+resource "aws_subnet" "subnets" {
+  count             = length(var.ntier_vpc_info.subnet_names)
+  cidr_block        = cidrsubnet(var.ntier_vpc_info.vpc_cidr, 8, count.index)
+  availability_zone = "${var.region}${var.ntier_vpc_info.subnet_azs[count.index]}"
+  vpc_id            = local.vpc_id
+  depends_on = [
+    aws_vpc.ntier
+  ]
+  tags = {
+    Name = var.ntier_vpc_info.subnet_names[count.index]
+  }
+}
+
+resource "aws_internet_gateway" "ntier_igw" {
+  vpc_id = local.vpc_id
+  tags = {
+    Name = "ntier-igw"
+  }
+  depends_on = [
+    aws_vpc.ntier
+  ]
+}
+
+resource "aws_route_table" "private" {
+  vpc_id = local.vpc_id
+  tags = {
+    Name = "private"
+  }
+  depends_on = [
+    aws_subnet.subnets
+  ]
+}
+
+resource "aws_route_table" "public" {
+  vpc_id = local.vpc_id
+  tags = {
+    Name = "public"
+  }
+  route {
+    cidr_block = local.anywhere
+    gateway_id = aws_internet_gateway.ntier_igw.id
+  }
+  depends_on = [
+    aws_subnet.subnets
+  ]
+}
+
+data "aws_subnets" "public" {
+  filter {
+    name   = "tag:Name"
+    values = var.ntier_vpc_info.public_subnets
+  }
+  filter {
+    name   = "vpc-id"
+    values = [local.vpc_id]
+  }
+
+  depends_on = [
+    aws_subnet.subnets
+  ]
+}
+
+data "aws_subnets" "private" {
+  filter {
+    name   = "tag:Name"
+    values = var.ntier_vpc_info.private_subnets
+  }
+
+  filter {
+    name   = "vpc-id"
+    values = [local.vpc_id]
+  }
+
+  depends_on = [
+    aws_subnet.subnets
+  ]
+}
+
+resource "aws_route_table_association" "public_associations" {
+  count          = length(data.aws_subnets.public.ids)
+  route_table_id = aws_route_table.public.id
+  subnet_id      = data.aws_subnets.public.ids[count.index]
+}
+
+resource "aws_route_table_association" "private_associations" {
+  count          = length(data.aws_subnets.private.ids)
+  route_table_id = aws_route_table.private.id
+  subnet_id      = data.aws_subnets.private.ids[count.index]
+}
+```
+### Creating RDS DB Instance (db)
+
+* Manual Steps:
+  * DB Subnet Group: This is more than one subnet where the databse has to be created
+  * Security Group:
+    * mysql: open 3306 port with in vpc
+  * Database Engine: mysql
+  * size: db.t2.micro
+  * credentials: username and password
+
+* Create security Group: For changes
+  * `database.tf`
+```
+resource "aws_security_group" "db" {
+  name = "mysql"
+  ingress {
+    from_port   = local.mysql_port
+    to_port     = local.mysql_port
+    cidr_blocks = [var.ntier_vpc_info.vpc_cidr]
+    protocol    = local.tcp
+
+  }
+  tags = {
+    Name = "mysql"
+  }
+  vpc_id = local.vpc_id
+
+  depends_on = [
+    aws_subnet.subnets
+  ]
+}
+```
+  * `localvalues.tf`
+```
+locals {
+  vpc_id     = aws_vpc.ntier.id
+  anywhere   = "0.0.0.0/0"
+  mysql_port = 3306
+  tcp        = "tcp"
+}
+```
+* Add db subnet group, for changes
+  * `database tf`
+```
+resource "aws_security_group" "db" {
+  name = "mysql"
+  ingress {
+    from_port   = local.mysql_port
+    to_port     = local.mysql_port
+    cidr_blocks = [var.ntier_vpc_info.vpc_cidr]
+    protocol    = local.tcp
+  }
+  tags = {
+    Name = "mysql"
+  }
+  vpc_id = local.vpc_id
+
+  depends_on = [
+    aws_subnet.subnets
+  ]
+}
+
+data "aws_subnets" "db" {
+  filter {
+    name   = "tag:Name"
+    values = var.ntier_vpc_info.db_subnets
+  }
+  filter {
+    name   = "vpc-id"
+    values = [local.vpc_id]
+  }
+  depends_on = [
+    aws_subnet.subnets
+  ]
+
+}
+
+resource "aws_db_subnet_group" "ntier" {
+  name       = "ntier"
+  subnet_ids = data.aws_subnets.db.ids
+  depends_on = [
+    aws_subnet.subnets
+  ]
+}
+```
+  * `dev.tfvars`
+```
+region = "us-west-2"
+ntier_vpc_info = {
+  subnet_azs      = ["a", "b", "a", "b", "a", "b"]
+  subnet_names    = ["app1", "app2", "db1", "db2", "web1", "web2"]
+  vpc_cidr        = "192.168.0.0/16"
+  public_subnets  = ["web1", "web2"]
+  private_subnets = ["app1", "app2", "db1", "db2"]
+  db_subnets      = ["db1", "db2"]
+
+}
+```
+  * `inputs.tf`
+```
+variable "region" {
+  type        = string
+  default     = "us-west-2"
+  description = "Region to create resources"
+}
+variable "ntier_vpc_info" {
+  type = object({
+    vpc_cidr        = string,
+    subnet_azs      = list(string),
+    subnet_names    = list(string),
+    private_subnets = list(string),
+    public_subnets  = list(string),
+    db_subnets      = list(string)
+  })
+  default = {
+    subnet_azs      = ["a", "b", "a", "b"]
+    subnet_names    = ["app1", "app2", "db1", "db2"]
+    vpc_cidr        = "192.168.0.0/16"
+    public_subnets  = []
+    private_subnets = ["app1", "app2", "db1", "db2"]
+    db_subnets      = ["db1", "db2"]
+  }
+}
+```
+* Create rds instance, for the changes 
+  * `database.tf`
+```
+resource "aws_security_group" "db" {
+  name = "mysql"
+  ingress {
+    from_port   = local.mysql_port
+    to_port     = local.mysql_port
+    cidr_blocks = [var.ntier_vpc_info.vpc_cidr]
+    protocol    = local.tcp
+  }
+  tags = {
+    Name = "mysql"
+  }
+  vpc_id = local.vpc_id
+  depends_on = [
+    aws_subnet.subnets
+  ]
+}
+
+data "aws_subnets" "db" {
+  filter {
+    name   = "tag:Name"
+    values = var.ntier_vpc_info.db_subnets
+  }
+  filter {
+    name   = "vpc-id"
+    values = [local.vpc_id]
+  }
+  depends_on = [
+    aws_subnet.subnets
+  ]
+}
+
+resource "aws_db_subnet_group" "ntier" {
+  name       = "ntier"
+  subnet_ids = data.aws_subnets.db.ids
+  depends_on = [
+    aws_subnet.subnets
+  ]
+}
+
+resource "aws_db_instance" "empdb" {
+  allocated_storage      = 20
+  db_name                = "qtemployees"
+  db_subnet_group_name   = "ntier"
+  engine                 = "mysql"
+  engine_version         = "8.0.28"
+  instance_class         = "db.t2.micro"
+  password               = "rootroot"
+  username               = "admin"
+  publicly_accessible    = false
+  vpc_security_group_ids = [aws_security_group.db.id]
+  skip_final_snapshot    = true
+
+  depends_on = [
+    aws_db_subnet_group.ntier,
+    aws_security_group.db
+  ]
+}
+```
+* Let's add database endpoint as output
+  * `database.tf`
+```
+resource "aws_security_group" "db" {
+  name = "mysql"
+  ingress {
+    from_port   = local.mysql_port
+    to_port     = local.mysql_port
+    cidr_blocks = [var.ntier_vpc_info.vpc_cidr]
+    protocol    = local.tcp
+  }
+  tags = {
+    Name = "mysql"
+  }
+  vpc_id = local.vpc_id
+  depends_on = [
+    aws_subnet.subnets
+  ]
+}
+data "aws_subnets" "db" {
+  filter {
+    name   = "tag:Name"
+    values = var.ntier_vpc_info.db_subnets
+  }
+  filter {
+    name   = "vpc-id"
+    values = [local.vpc_id]
+  }
+  depends_on = [
+    aws_subnet.subnets
+  ]
+}
+resource "aws_db_subnet_group" "ntier" {
+  name       = "ntier"
+  subnet_ids = data.aws_subnets.db.ids
+  depends_on = [
+    aws_subnet.subnets
+  ]
+}
+
+resource "aws_db_instance" "empdb" {
+  allocated_storage      = 20
+  db_name                = "qtemployees"
+  db_subnet_group_name   = "ntier"
+  engine                 = "mysql"
+  engine_version         = "8.0.28"
+  instance_class         = "db.t2.micro"
+  password               = "rootroot"
+  username               = "admin"
+  publicly_accessible    = false
+  vpc_security_group_ids = [aws_security_group.db.id]
+  skip_final_snapshot    = true
+
+  depends_on = [
+    aws_db_subnet_group.ntier,
+    aws_security_group.db
+  ]
+}
+```
+### AWS EC2 from terraform
+
+* Create an ec2 instance in web1 subnet
+* Steps:
+  * Create security group 
+    * `compute.tf`
+```
+resource "aws_security_group" "web" {
+  name = "web"
+  ingress {
+    from_port   = local.ssh_port
+    to_port     = local.ssh_port
+    cidr_blocks = [local.anywhere]
+    protocol    = local.tcp
+  }
+  ingress {
+    from_port   = local.http_port
+    to_port     = local.http_port
+    cidr_blocks = [local.anywhere]
+    protocol    = local.tcp
+
+  }
+  tags = {
+    Name = "web"
+  }
+  vpc_id = local.vpc_id
+
+  depends_on = [
+    aws_subnet.subnets
+  ]
+}
+```
+  * `localvalues.tf`
+  ```
+  locals {
+  vpc_id     = aws_vpc.ntier.id
+  anywhere   = "0.0.0.0/0"
+  mysql_port = 3306
+  tcp        = "tcp"
+  ssh_port   = 22
+  http_port  = 80
+  }
+  ```
+* Create ec2, for changes
+  * `compute.tf`
+  ```
+  resource "aws_security_group" "web" {
+  name = "web"
+  ingress {
+    from_port   = local.ssh_port
+    to_port     = local.ssh_port
+    cidr_blocks = [local.anywhere]
+    protocol    = local.tcp
+  }
+  ingress {
+    from_port   = local.http_port
+    to_port     = local.http_port
+    cidr_blocks = [local.anywhere]
+    protocol    = local.tcp
+  }
+  tags = {
+    Name = "web"
+  }
+  vpc_id = local.vpc_id
+  depends_on = [
+    aws_subnet.subnets
+  ]
+}
+
+data "aws_ami_ids" "ubuntu_2204" {
+  owners = ["099720109477"]
+  filter {
+    name   = "description"
+    values = ["Canonical, Ubuntu, 22.04 LTS, amd64 jammy image build on 2023-02-08"]
+  }
+  filter {
+    name   = "is-public"
+    values = ["true"]
+  }
+
+}
+
+data "aws_subnet" "web" {
+  vpc_id = local.vpc_id
+  filter {
+    name   = "tag:Name"
+    values = [var.ntier_vpc_info.web_ec2_subnet]
+  }
+
+  depends_on = [
+    aws_subnet.subnets
+  ]
+}
+
+resource "aws_instance" "web" {
+  ami                         = local.ami_id
+  associate_public_ip_address = true
+  instance_type               = "t2.micro"
+  subnet_id                   = data.aws_subnet.web.id
+  vpc_security_group_ids      = [aws_security_group.web.id]
+  tags = {
+    Name = "web1"
+  }
+
+
+  depends_on = [
+    aws_db_instance.empdb,
+    aws_security_group.web
+  ]
+
+}
+ ```
+  * `dev.tfvars`
+```
+region = "us-west-2"
+ntier_vpc_info = {
+  subnet_azs      = ["a", "b", "a", "b", "a", "b"]
+  subnet_names    = ["app1", "app2", "db1", "db2", "web1", "web2"]
+  vpc_cidr        = "192.168.0.0/16"
+  public_subnets  = ["web1", "web2"]
+  private_subnets = ["app1", "app2", "db1", "db2"]
+  db_subnets      = ["db1", "db2"]
+  web_ec2_subnet  = "web1"
+
+}
+```
+  * `inputs.tf`
+```
+variable "region" {
+  type        = string
+  default     = "us-west-2"
+  description = "Region to create resources"
+}
+variable "ntier_vpc_info" {
+  type = object({
+    vpc_cidr        = string,
+    subnet_azs      = list(string),
+    subnet_names    = list(string),
+    private_subnets = list(string),
+    public_subnets  = list(string),
+    db_subnets      = list(string),
+    web_ec2_subnet  = string
+  })
+  default = {
+    subnet_azs      = ["a", "b", "a", "b"]
+    subnet_names    = ["app1", "app2", "db1", "db2"]
+    vpc_cidr        = "192.168.0.0/16"
+    public_subnets  = []
+    private_subnets = ["app1", "app2", "db1", "db2"]
+    db_subnets      = ["db1", "db2"]
+    web_ec2_subnet  = ""
+  }
+}
+```
+  * `localvalues.tf`
+```
+locals {
+  vpc_id     = aws_vpc.ntier.id
+  anywhere   = "0.0.0.0/0"
+  mysql_port = 3306
+  tcp        = "tcp"
+  ssh_port   = 22
+  http_port  = 80
+  ami_id     = data.aws_ami_ids.ubuntu_2204.ids[0]
+}
+```
+  * `outputs.tf`
+```
+output "db_endpoint" {
+  value = aws_db_instance.empdb.endpoint
+}
+
+output "ubuntu_ami_id" {
+  value = data.aws_ami_ids.ubuntu_2204.ids[0]
+}
+
+output "web_ip" {
+  value = aws_instance.web.public_ip
+}
+```
+### Activity
+
+* Create a new folder and one tf file with local provider to create a text file anywhere in your system
+* When you apply you get state file
+  * copy the state file and store with name state_1.tfstate
+* Now change the path to new directory and apply the changes
+  * copy the state file and store with name state_2.tfstate
+* Try adding a output in tf
+  * copy the state file and store with name state_3.tfstate
+
+### Multi user
+
+* Let's create a simple terraform template to create vpc, for the changes
+  * `network.tf`
+  ```
+  resource "aws_vpc" "ntier" {
+    cidr_block = "192.168.0.0/16"
+    tags = {
+      Name = "ntier"
+    }
+  }
+  ```
+  * `provider.tf`
+  ```
+  terraform {
+    required_providers {
+      aws = {
+        source = "hashicorp/aws"
+        version = "4.60.0"
+      }
+    }
+  required_version = "> 1.0.0"
+  }
+
+  provider "aws" {
+    # Configuration options
+  }
+  ```
+* Execute this from two different machines.
+* Consider both of them are working for same purpose
+* User 1:
+
+
+
+* User 2:
+
+
+
+* Execution Create two different resources, which is not desired
+
+
+
+* As of now state is stored locally i.e. when user1 executes it is stored in user1 system and same for user2
+
+![alt text](shots/22.PNG)
+
+* To solve this problem we need to store the state in some common place
+
+![alt text](shots/23.PNG)
+
+* The location of state file in terraform is defined by backend
+
+### Terraform Backends
+
+* Backend defines where the state has to be stored
+* For offical docs
+
+  [ Refer here : https://developer.hashicorp.com/terraform/language/state/backends ] 
+  
+* For configuring backend
+
+  [ Refer here : https://developer.hashicorp.com/terraform/language/settings/backends/configuration ]
+
+* There are two types of backends
+  * local-backend:
+    * This is default backend
+  * remote-backend
+* For available backends
+
+  [ Refer here : https://developer.hashicorp.com/terraform/language/settings/backends/configuration#available-backends ]
+
+* As common state for terraform for multiple users will have concurrency problem, Terraform backends need locking and unlocking
+* S3 bucket can be used as terraform backend, S3 buckend doesnot support locking, if you need locking add dynamo db details
+
+### Remote Backends with S3
+
+* For official docs
+
+  [ Refer here : https://developer.hashicorp.com/terraform/language/settings/backends/s3 ]
+
+* Create an s3 bucket
+
+
+
+* Create a dynamo DB table with any name and partition key `LockID`
+
+
+
+* For the changes done to add s3 backend
+  * `network.tf`
+  ```
+  resource "aws_vpc" "ntier" {
+    cidr_block = "192.168.0.0/16"
+    tags = {
+      Name = "ntier"
+    }
+  }
+  ```
+  * `provider.tf`
+  ```
+  terraform {
+    required_providers {
+      aws = {
+        source  = "hashicorp/aws"
+        version = "4.60.0"
+      }
+    }
+    required_version = "> 1.0.0"
+    backend "s3" {
+      bucket         = "terraformremotebackendqt"
+      key            = "classes/hellotf"
+      dynamodb_table = "terraformlock"
+      region         = "us-west-2"
+
+    }
+  }
+
+  provider "aws" {
+  # Configuration options
+  }
+  ```
+* Perform init on both user machines
+
+
+
+* Now lets user1 apply the changes
+
+
+
+* Now while user1 is still applying let user 2 also apply
+
+
+
+* Let user1 finish applying and create the resources
+
+
+
+* Now let user2 try applying
+
+
+
+
+
+* Exercise: Configure Azurerm backend, which has inbuilt locking facility
+
+  [ Refer here : https://developer.hashicorp.com/terraform/language/settings/backends/azurerm ]
+
+### Next Steps
+
+* Provisioning
+* Immutable Infrastructure
