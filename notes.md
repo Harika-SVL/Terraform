@@ -1219,7 +1219,7 @@ variable "appsubnet_index" {
 
   * `app.tf`
 ```
-resource "azurerm_network_interface" "appserver_nic" {
+resource "azurerm_network_interface" "appserver_nic" { 
   name                = var.network_interface_info.name
   location            = azurerm_resource_group.ntierrg.location
   resource_group_name = azurerm_resource_group.ntierrg.name
