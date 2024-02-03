@@ -1,7 +1,7 @@
 #### Problem Statement
 
 * _**`Our ficticious Organization`**_ :
-    * _**name**_ : Asquare info systems
+    * _**Name**_ : Asquare info systems
     * _**Product**_ : iEcommerce
     * _**Purpose**_ : Any Organization can buy this project and host ecommerce applications
 * This product is designed to work on any virtualized platform such as :
@@ -27,12 +27,12 @@
         * _**one File Store**_ :
             * Size : 10 TB
         * _**3 Servers**_ :
-            * OS : Ubuntu 22.04
+            * OS : Ubuntu - 22.04
             * RAM : 16 GB
             * Cpus : 2
             * Disk : 50 GB
 * _**`Solution`**_ :
-    * _**InfraProvisioning**_ : This represents using Infrastructure as a Code and deploy to target environment
+    * _**InfraProvisioning**_ : This represents using Infrastructure as a Code ( IaC ) and deploy to target environment
 
 ### Understanding InfraProvisioning
 
@@ -41,7 +41,7 @@
 ![Alt text](shots/2.PNG)
 ![Alt text](shots/3.PNG)
 
-* We use InfraProvisioing tools where we express our desired state about `Infrastructure as code`
+* We use InfraProvisioing tools where we express our desired state about `Infrastructure as code ( IaC )`
 * _**Terraform**_ : Can create infra in almost all the virtual environments
 * _**ARM Templates**_ : Can create infra in Azure
 * _**CloudFormation**_ : Can create infra in AWS
@@ -83,7 +83,7 @@
 #### Creating basic terraform template
 
 * Create a new folder `hellotf`
-* open visual studio code
+* open Visual Studio Code
 * Create a new file `main` with extension `.tf` - _**main.tf**_
 * Choose any provider 
 
@@ -131,14 +131,6 @@ yes                 #approval to create infra
 terraform apply     #already existing
 terraform destroy   #deleting the created infra
 ```
-
-
-
-
-
-
-
-
 * Creating a template with `Azure`
 ```
 terraform {
