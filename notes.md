@@ -291,12 +291,13 @@ provider "<name>" {
     <ARGUMENT-N> = <VALUE-N>
 }
 ```
-* the type of resource will be in the form of `<provider>_<resource_type>`
+* The type of resource will be in the form of `<provider>_<resource_type>`
 
 ### Manual Steps of VPC Creation
 
 * Steps : Let's create a simple vpc
-* Lets search for resource which lead to 
+* Let's search for resource which lead to 
+
   [ Refer Here : https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/vpc ]
 
 * Now look at arguments 
@@ -317,7 +318,7 @@ resource "aws_vpc" "ntier" {
 ```
 * Now validate and apply
 
-### Activity: Create virtual network in Azure
+### Activity : Create virtual network ( VNet ) in Azure
 
 * Manual Steps:
   * Create resource group
@@ -348,7 +349,7 @@ resource "azurerm_virtual_network" "ntiervnet" {
   location            = "eastus"
 }
 ```
-* Changeset `provider.tf`
+* `provider.tf`
 ```
 provider "azurerm" {
   features {}
@@ -387,7 +388,7 @@ resource "azurerm_virtual_network" "ntiervnet" {
   ]
 }
 ```
-* Changeset `provider.tf`
+* `provider.tf`
 ```
 provider "azurerm" {
   features {}
@@ -404,15 +405,14 @@ terraform destroy
 ```
 ![Alt text](shots/16.PNG)
 
-* Note:
-  * The commands which we started following `init, fmt, validate, apply`
+* Note : The commands which we started following `init, fmt, validate, apply`
 
 ### Focus Points
 
-* To Work effectively with terrform templates we need to understand Hashicorp Configuration Language
-* How to parametrize the template
+* To work effectively with terrform templates we need to understand Hashicorp Configuration Language ( HCL )
+* How to parametrize the template ?
 
-### Hashicorp Configuration Language (HCL) for Terraform
+### Hashicorp Configuration Language ( HCL ) for Terraform
 
 * _**For Specification**_ 
 
@@ -459,7 +459,7 @@ resource "aws_vpc" "ntier" {
 
   [ Refer here : https://developer.hashicorp.com/terraform/language/values/variables ]
 
-* For _**inputs terraform supports**_ the following _**types**_
+* For _**inputs terraform supports**_ the following _**types**_ :
   * number
   * string
   * boolean
@@ -468,7 +468,7 @@ resource "aws_vpc" "ntier" {
   * map()
   * object({ = , … })
   * tuple([, …])
-* To _**pass variables**_ while executing commands we have two options :
+* To _**pass variables**_ while executing commands ( dynamically ) we have two options :
   * -var
   * -var-file
 * using `-var` 
@@ -582,8 +582,8 @@ vnet-range = ["10.100.0.0/16"]
 
 => select VPC => Subnets => Create subnet => select VPC ID => Give name, Availability zone, CIDR block
 
-* To access outputs i.e. attributes of a resource syntax is `<resoure_type>.<name>.<atrribute-name>`
-* For the changes done `inputs.tf`
+* To access outputs i.e., attributes of a resource syntax is `<resoure_type>.<name>.<atrribute-name>`
+* For the changes `inputs.tf`
 ```
 variable "region" {
   type        = string
@@ -752,7 +752,7 @@ ntier-subnet-cidrs = ["10.100.0.0/24", "10.100.1.0/24", "10.100.2.0/24", "10.100
 
   [ Refer Here : https://developer.hashicorp.com/terraform/language/functions ]
 
-* Let's replace static count of 4 with length function 
+* Let's replace static count of `4` with length function 
 
   [ Refer Here : https://developer.hashicorp.com/terraform/language/functions/length ]
 
@@ -782,7 +782,7 @@ resource "aws_subnet" "subnets" {
 
 * Let's generate subnet cidr range
 
-* For the changes done to use cidr subnet function and object input type `inputs.tf`
+* For the changes done to use `CIDR subnet` function and object input type `inputs.tf`
 ```
 variable "region" {
   type        = string
@@ -839,7 +839,7 @@ ntier_vpc_info = {
 ### Azure
 
 * Let's add subnets, refer below for manual steps
-* For the changes done `.terraform.tfstate.lock.info`
+* For the changes `.terraform.tfstate.lock.info`
 ```
 {"ID":"369b9c9c-99ce-574e-b2dc-248e60926f4e","Operation":"OperationTypeApply","Info":"","Who":"DESKTOP-TM7SH71\\Dell@DESKTOP-TM7SH71","Version":"1.3.9","Created":"2023-03-23T03:39:17.249786Z","Path":"terraform.tfstate"}
 ```
@@ -888,7 +888,7 @@ resource "azurerm_subnet" "subnets" {
   ]
 }
 ```
-### Ntier on Azure
+### Azure - ntier
 
 * We need to create the following network
 
@@ -941,7 +941,6 @@ resource "azurerm_resource_group" "ntierrg" {
   }
 }
 
-
 resource "azurerm_virtual_network" "ntiervnet" {
     name                = var.names.vnet
   resource_group_name = azurerm_resource_group.ntierrg.name
@@ -967,17 +966,15 @@ resource "azurerm_subnet" "subnets" {
   ]
 }
 ```
+### Let's try to Create SQL Database in Azure
 
-
-### Let's try to Create Azure SQL Database
-
-* Manual steps: 
+* Manual steps : 
 
   [ Refer Here : https://learn.microsoft.com/en-us/azure/azure-sql/database/single-database-create-quickstart?view=azuresql&tabs=azure-portal ]
 
-* We need to Create SQL Server and then database
-* For the changes done to create sql server
-  * `database.tf`
+* We need to create SQL Server and then database
+* For the changes to create sql server
+* `database.tf`
 ```
 resource "azurerm_mssql_server" "sql_server" {
   name                         = var.names.sql_server
@@ -1025,14 +1022,14 @@ variable "names" {
 
 ### Terms
 
-* Configuration Drift:
+* _**Configuration Drift**_ :
     * Difference between actual and desired state
-    * In Terraform plan represents drift
+    * In `Terraform plan` represents drift
 
-### Creating Database in Azure using Terraform
+### Creating database in Azure using Terraform
 
 * We have added the resource to create sql server on azure and applied the template. For the changes 
-  * `database.tf`
+* `database.tf`
 ```
 resource "azurerm_mssql_server" "sql_server" {
   name                         = var.names.sql_server
@@ -1072,7 +1069,7 @@ resource "azurerm_mssql_database" "sql_emp_db" {
   [ Refer here : https://developer.hashicorp.com/terraform/cli/commands/graph ]
 
 
-### Create VMs in Azure using terraform
+### Create VM's in Azure using Terraform
 
 * Overview of our goal
 
@@ -1083,7 +1080,7 @@ resource "azurerm_mssql_database" "sql_emp_db" {
   [ Refer here : https://learn.microsoft.com/en-us/azure/virtual-machines/linux/quick-create-portal?tabs=ubuntu ]
 
 * For changes
-  * `app.tf`
+* `app.tf`
 ```
 resource "azurerm_network_interface" "appserver_nic" {
   name                = "appservernic"
@@ -1099,7 +1096,6 @@ resource "azurerm_network_interface" "appserver_nic" {
   depends_on = [
     azurerm_subnet.subnets
   ]
-
 }
 
 resource "azurerm_linux_virtual_machine" "appserver" {
@@ -1203,11 +1199,11 @@ variable "appsubnet_index" {
   default = 1
 }
 ```
-* We have created a vm without public ip and database connectivity between vm and sql is using internet. We will work on this actvities in next session
+* We have created a VM without public ip and database connectivity between VM and SQL is using internet.
 * Improvements:
   * Try to parametrize using variables and avoid creating too many variables by using object structure. For changes
 
-  * `app.tf`
+* `app.tf`
 ```
 resource "azurerm_network_interface" "appserver_nic" {
   name                = var.network_interface_info.name
@@ -1251,7 +1247,7 @@ resource "azurerm_linux_virtual_machine" "appserver" {
   ]
 }
 ```
-  * `database.tf`
+* `database.tf`
 ```
 resource "azurerm_mssql_server" "sql_server" {
   name                         = var.names.sql_server
@@ -1379,21 +1375,22 @@ variable "vm_info" {
   }
 }
 ```
-### Terraform Datasources
+### Terraform DataSources
 
-* Till now we have used terraform to create resources in provider. Terraform can also query the provider for various information
+* Till now we have used terraform to create resources in provider 
+* Terraform can also query the provider for various information
 * For official docs
 
   [ Refer here : https://developer.hashicorp.com/terraform/language/data-sources ]
 
 ### Terraform outputs
 
-* Terraform output is result which would be shown in the stdout
+* Terraform output is result which would be shown in the `stdout`
 * For official docs
 
   [ Refer her : https://developer.hashicorp.com/terraform/language/values/outputs ]
 * Let's display private ip address and database endpoint as outputs, for the changes 
-  * `outputs.tf`
+* `outputs.tf`
 ```
 output "appserver_ip" {
   value = azurerm_linux_virtual_machine.appserver.private_ip_address
@@ -1401,10 +1398,9 @@ output "appserver_ip" {
 
 output "database_endpoint" {
   value = azurerm_mssql_server.sql_server.fully_qualified_domain_name
-
 }
 ```
-### Ntier in AWS
+### AWS - ntier
 
 #### Making subnets public and private
 
@@ -1412,7 +1408,7 @@ output "database_endpoint" {
 
 ![alt text](shots/21.PNG)
 
-* Creating internet gateway and attach to vpc. For resource
+* Creating internet-gateway and attach to vpc. For resource
 
   [ Refer here : https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/internet_gateway ]
 
@@ -1447,25 +1443,23 @@ resource "aws_internet_gateway" "ntier_igw" {
 ```
 * Now let's create two route tables
 
-### Ntier in AWS Contd
-
-* So far we have created vpc with 6 subnets and attached internet gateway
+* So far we have created vpc with 6 subnets and attached internet-gateway
 * Now let's create two route tables public and private
-* Terraform has locals where we can define the value for usage within template 
+* Terraform has local's where we can define the value for usage within template 
 
   [ Refer Here : https://developer.hashicorp.com/terraform/language/values/locals ]
 
 ### Create Route tables
 
 * For the changeset to add route tables
-  * `localvalues.tf`
+* `localvalues.tf`
 ```
 locals {
   vpc_id   = aws_vpc.ntier.id
   anywhere = "0.0.0.0/0"
 }
 ```
-  * `network.tf`
+* `network.tf`
 ```
 resource "aws_vpc" "ntier" {
   cidr_block = var.ntier_vpc_info.vpc_cidr
@@ -1495,7 +1489,6 @@ resource "aws_internet_gateway" "ntier_igw" {
     aws_vpc.ntier
   ]
 }
-
 
 resource "aws_route_table" "private" {
   vpc_id = local.vpc_id
@@ -1528,7 +1521,7 @@ resource "aws_route_table" "public" {
   [ Refer here : https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/route_table#argument-reference ]
 
 * Now we need to associate private route table with 4 subnets and public route table with 2 subnets. For the changes 
-  * `dev.tfvars`
+* `dev.tfvars`
 ```
 region = "us-west-2"
 ntier_vpc_info = {
@@ -1539,7 +1532,7 @@ ntier_vpc_info = {
   private_subnets = ["app1", "app2", "db1", "db2"]
 }
 ```
-  * `inputs.tf`
+* `inputs.tf`
 ```
 variable "region" {
   type        = string
@@ -1564,7 +1557,7 @@ variable "ntier_vpc_info" {
   }
 }
 ```
-  * `network.tf`
+* `network.tf`
 ```
 resource "aws_vpc" "ntier" {
   cidr_block = var.ntier_vpc_info.vpc_cidr
@@ -1665,15 +1658,15 @@ resource "aws_route_table_association" "private_associations" {
 ```
 ### Creating RDS DB Instance (db)
 
-* Manual Steps:
-  * DB Subnet Group: This is more than one subnet where the databse has to be created
-  * Security Group:
-    * mysql: open 3306 port with in vpc
-  * Database Engine: mysql
-  * size: db.t2.micro
-  * credentials: username and password
+* Manual steps :
+  * _**DB Subnet Group**_ : This is more than one subnet where the databse has to be created
+  * _**Security Group**_ :
+    * mysql : open 3306 port with in vpc
+  * _**Database Engine**_ : mysql
+  * _**size**_ : db.t2.micro
+  * _**credentials**_ : username and password
 
-* Create security Group: For changes
+* Creating6 security Group, For changes
   * `database.tf`
 ```
 resource "aws_security_group" "db" {
