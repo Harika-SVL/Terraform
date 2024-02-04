@@ -1663,11 +1663,11 @@ resource "aws_route_table_association" "private_associations" {
   * _**Security Group**_ :
     * mysql : open 3306 port with in vpc
   * _**Database Engine**_ : mysql
-  * _**size**_ : db.t2.micro
-  * _**credentials**_ : username and password
+  * _**Size**_ : db.t2.micro
+  * _**Credentials**_ : username and password
 
-* Creating6 security Group, For changes
-  * `database.tf`
+* Creating 6 security Group, for changes
+* `database.tf`
 ```
 resource "aws_security_group" "db" {
   name = "mysql"
@@ -1698,7 +1698,7 @@ locals {
 }
 ```
 * Add db subnet group, for changes
-  * `database tf`
+* `database tf`
 ```
 resource "aws_security_group" "db" {
   name = "mysql"
@@ -1730,7 +1730,6 @@ data "aws_subnets" "db" {
   depends_on = [
     aws_subnet.subnets
   ]
-
 }
 
 resource "aws_db_subnet_group" "ntier" {
@@ -1754,7 +1753,7 @@ ntier_vpc_info = {
 
 }
 ```
-  * `inputs.tf`
+* `inputs.tf`
 ```
 variable "region" {
   type        = string
@@ -1780,8 +1779,8 @@ variable "ntier_vpc_info" {
   }
 }
 ```
-* Create rds instance, for the changes 
-  * `database.tf`
+* Create RDS instance, for the changes 
+* `database.tf`
 ```
 resource "aws_security_group" "db" {
   name = "mysql"
@@ -1842,7 +1841,7 @@ resource "aws_db_instance" "empdb" {
 }
 ```
 * Let's add database endpoint as output
-  * `database.tf`
+* `database.tf`
 ```
 resource "aws_security_group" "db" {
   name = "mysql"
@@ -1900,12 +1899,12 @@ resource "aws_db_instance" "empdb" {
   ]
 }
 ```
-### AWS EC2 from terraform
+### AWS EC2 from Terraform
 
-* Create an ec2 instance in web1 subnet
-* Steps:
+* Create an ec2 instance in `web1`subnet
+* Steps :
   * Create security group 
-    * `compute.tf`
+  * `compute.tf`
 ```
 resource "aws_security_group" "web" {
   name = "web"
@@ -1944,8 +1943,8 @@ resource "aws_security_group" "web" {
   }
   ```
 * Create ec2, for changes
-  * `compute.tf`
-  ```
+* `compute.tf`
+```
   resource "aws_security_group" "web" {
   name = "web"
   ingress {
@@ -1979,7 +1978,6 @@ data "aws_ami_ids" "ubuntu_2204" {
     name   = "is-public"
     values = ["true"]
   }
-
 }
 
 data "aws_subnet" "web" {
@@ -2004,15 +2002,13 @@ resource "aws_instance" "web" {
     Name = "web1"
   }
 
-
   depends_on = [
     aws_db_instance.empdb,
     aws_security_group.web
   ]
-
 }
- ```
-  * `dev.tfvars`
+```
+* `dev.tfvars`
 ```
 region = "us-west-2"
 ntier_vpc_info = {
@@ -2026,7 +2022,7 @@ ntier_vpc_info = {
 
 }
 ```
-  * `inputs.tf`
+* `inputs.tf`
 ```
 variable "region" {
   type        = string
@@ -2054,7 +2050,7 @@ variable "ntier_vpc_info" {
   }
 }
 ```
-  * `localvalues.tf`
+* `localvalues.tf`
 ```
 locals {
   vpc_id     = aws_vpc.ntier.id
@@ -2066,7 +2062,7 @@ locals {
   ami_id     = data.aws_ami_ids.ubuntu_2204.ids[0]
 }
 ```
-  * `outputs.tf`
+* `outputs.tf`
 ```
 output "db_endpoint" {
   value = aws_db_instance.empdb.endpoint
@@ -2082,28 +2078,28 @@ output "web_ip" {
 ```
 ### Activity
 
-* Create a new folder and one tf file with local provider to create a text file anywhere in your system
+* Create a new folder and one `tf` file with local provider to create a text file anywhere in your system
 * When you apply you get state file
-  * copy the state file and store with name state_1.tfstate
+  * copy the `state file` and store with name _**state_1.tfstate**_
 * Now change the path to new directory and apply the changes
-  * copy the state file and store with name state_2.tfstate
-* Try adding a output in tf
-  * copy the state file and store with name state_3.tfstate
+  * copy the `state file` and store with name _**state_2.tfstate**_
+* Try adding a output in `tf`
+  * copy the `state file` and store with name _**state_3.tfstate**_
 
 ### Multi user
 
 * Let's create a simple terraform template to create vpc, for the changes
-  * `network.tf`
-  ```
+* `network.tf`
+```
   resource "aws_vpc" "ntier" {
     cidr_block = "192.168.0.0/16"
     tags = {
       Name = "ntier"
     }
   }
-  ```
-  * `provider.tf`
-  ```
+```
+* `provider.tf`
+```
   terraform {
     required_providers {
       aws = {
@@ -2117,22 +2113,15 @@ output "web_ip" {
   provider "aws" {
     # Configuration options
   }
-  ```
-* Execute this from two different machines.
+```
+* Execute this from two different machines
 * Consider both of them are working for same purpose
 * User 1:
-
-
-
 * User 2:
 
+* Execution : Create two different resources, which is not desired
 
-
-* Execution Create two different resources, which is not desired
-
-
-
-* As of now state is stored locally i.e. when user1 executes it is stored in user1 system and same for user2
+* As of now state is stored locally i.e., when user1 executes, it is stored in user1 system and same for user2
 
 ![alt text](shots/22.PNG)
 
@@ -2140,7 +2129,7 @@ output "web_ip" {
 
 ![alt text](shots/23.PNG)
 
-* The location of state file in terraform is defined by backend
+* The location of `state file` in terraform is defined by _**backend**_
 
 ### Terraform Backends
 
@@ -2153,16 +2142,15 @@ output "web_ip" {
 
   [ Refer here : https://developer.hashicorp.com/terraform/language/settings/backends/configuration ]
 
-* There are two types of backends
-  * local-backend:
-    * This is default backend
+* There are two types of backends :
+  * local-backend : This is default backend
   * remote-backend
 * For available backends
 
   [ Refer here : https://developer.hashicorp.com/terraform/language/settings/backends/configuration#available-backends ]
 
 * As common state for terraform for multiple users will have concurrency problem, Terraform backends need locking and unlocking
-* S3 bucket can be used as terraform backend, S3 buckend doesnot support locking, if you need locking add dynamo db details
+* S3 bucket can be used as terraform backend, S3 backend doesnot support locking, if you need locking add dynamo db details
 
 ### Remote Backends with S3
 
@@ -2170,16 +2158,14 @@ output "web_ip" {
 
   [ Refer here : https://developer.hashicorp.com/terraform/language/settings/backends/s3 ]
 
-* Create an s3 bucket
-
-
+* Create an `s3` bucket
 
 * Create a dynamo DB table with any name and partition key `LockID`
 
 
 
-* For the changes done to add s3 backend
-  * `network.tf`
+* For the changes to add `s3 backend`
+* `network.tf`
   ```
   resource "aws_vpc" "ntier" {
     cidr_block = "192.168.0.0/16"
@@ -2188,7 +2174,7 @@ output "web_ip" {
     }
   }
   ```
-  * `provider.tf`
+* `provider.tf`
   ```
   terraform {
     required_providers {
@@ -2203,37 +2189,24 @@ output "web_ip" {
       key            = "classes/hellotf"
       dynamodb_table = "terraformlock"
       region         = "us-west-2"
-
     }
   }
 
   provider "aws" {
   # Configuration options
   }
-  ```
+```
 * Perform init on both user machines
 
+* Now let's user1 apply the changes
 
-
-* Now lets user1 apply the changes
-
-
-
-* Now while user1 is still applying let user 2 also apply
-
-
+* Now while user1 is still applying, let user2 also apply
 
 * Let user1 finish applying and create the resources
 
-
-
 * Now let user2 try applying
 
-
-
-
-
-* Exercise: Configure Azurerm backend, which has inbuilt locking facility
+* Exercise : Configure Azurerm backend, which has inbuilt locking facility
 
   [ Refer here : https://developer.hashicorp.com/terraform/language/settings/backends/azurerm ]
 
