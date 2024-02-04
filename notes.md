@@ -197,8 +197,6 @@ resource "azurerm_storage_account" "example" {
 
 [ Refer here : https://developer.hashicorp.com/terraform/install#Linux ]
 
-
-
 #### AWS Provider
 
 * Terraform aws provider uses the `AWS API's` to get the infra created
