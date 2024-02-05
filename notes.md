@@ -623,7 +623,6 @@ resource "aws_vpc" "ntier" {
   tags = {
     Name = "ntier"
   }
-
 }
 
 resource "aws_subnet" "app1" {
@@ -636,7 +635,6 @@ resource "aws_subnet" "app1" {
   depends_on = [
     aws_vpc.ntier
   ]
-
 }
 
 resource "aws_subnet" "app2" {
@@ -780,7 +778,7 @@ resource "aws_subnet" "subnets" {
 ```
 ### AWS
 
-* Let's generate subnet cidr range
+* Let's generate subnet CIDR range
 
 * For the changes done to use `CIDR subnet` function and object input type `inputs.tf`
 ```
@@ -966,7 +964,7 @@ resource "azurerm_subnet" "subnets" {
   ]
 }
 ```
-### Let's try to Create SQL Database in Azure
+### Let's try to create SQL Database in Azure
 
 * Manual steps : 
 
@@ -1028,7 +1026,7 @@ variable "names" {
 
 ### Creating database in Azure using Terraform
 
-* We have added the resource to create sql server on azure and applied the template. For the changes 
+* We have added the resource to create sql server on azure and applied the template For the changes 
 * `database.tf`
 ```
 resource "azurerm_mssql_server" "sql_server" {
@@ -1062,8 +1060,6 @@ resource "azurerm_mssql_database" "sql_emp_db" {
   ]
 }
 ```
-
-
 * Terraform graph command creates dependency graphs in dot format which can be visualized in Graphviz. For the command
 
   [ Refer here : https://developer.hashicorp.com/terraform/cli/commands/graph ]
@@ -1158,14 +1154,14 @@ resource "azurerm_mssql_database" "sql_emp_db" {
   ]
 }
 ```
-  * `dev.tfvars`
+* `dev.tfvars`
 ```
 location        = "eastus"
 vnet_range      = ["10.0.0.0/16"]
 subnet_names    = ["app", "db"]
 appsubnet_index = 0
 ```
-  * `inputs.tf`
+* `inputs.tf`
 ```
 variable "location" {
   type        = string
@@ -1331,7 +1327,6 @@ variable "server_info" {
     username = "devops"
     version  = "12.0"
   }
-
 }
 
 variable "database_info" {
@@ -1343,8 +1338,8 @@ variable "database_info" {
     name = "employees"
     sku  = "Basic"
   }
-
 }
+
 variable "network_interface_info" {
   type = object({
     name                 = string
@@ -1379,7 +1374,7 @@ variable "vm_info" {
 
 * Till now we have used terraform to create resources in provider 
 * Terraform can also query the provider for various information
-* For official docs
+* For official doc's
 
   [ Refer here : https://developer.hashicorp.com/terraform/language/data-sources ]
 
