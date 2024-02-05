@@ -1381,7 +1381,7 @@ variable "vm_info" {
 ### Terraform outputs
 
 * Terraform output is result which would be shown in the `stdout`
-* For official docs
+* For official doc's
 
   [ Refer her : https://developer.hashicorp.com/terraform/language/values/outputs ]
 * Let's display private ip address and database endpoint as outputs, for the changes 
@@ -1654,7 +1654,7 @@ resource "aws_route_table_association" "private_associations" {
 ### Creating RDS DB Instance (db)
 
 * Manual steps :
-  * _**DB Subnet Group**_ : This is more than one subnet where the databse has to be created
+  * _**DB Subnet Group**_ : This is more than one subnet where the database has to be created
   * _**Security Group**_ :
     * mysql : open 3306 port with in vpc
   * _**Database Engine**_ : mysql
