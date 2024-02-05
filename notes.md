@@ -2161,9 +2161,6 @@ output "web_ip" {
 * Create an `s3` bucket
 
 * Create a dynamo DB table with any name and partition key `LockID`
-
-
-
 * For the changes to add `s3 backend`
 * `network.tf`
   ```
@@ -2195,22 +2192,40 @@ output "web_ip" {
   provider "aws" {
   # Configuration options
   }
-```
-* Perform init on both user machines
+ ```
 
-* Now let's user1 apply the changes
 
-* Now while user1 is still applying, let user2 also apply
 
-* Let user1 finish applying and create the resources
 
-* Now let user2 try applying
 
-* Exercise : Configure Azurerm backend, which has inbuilt locking facility
 
-  [ Refer here : https://developer.hashicorp.com/terraform/language/settings/backends/azurerm ]
 
-### Next Steps
 
-* Provisioning
-* Immutable Infrastructure
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
