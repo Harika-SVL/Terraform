@@ -318,7 +318,7 @@ resource "aws_vpc" "ntier" {
 ```
 * Now validate and apply
 
-### Activity : Create virtual network ( VNet ) in Azure
+### Activity : Create virtual network ( Vnet ) in Azure
 
 * Manual Steps:
   * Create resource group
