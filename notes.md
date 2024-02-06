@@ -2897,8 +2897,6 @@ resource "azurerm_linux_virtual_machine" "apache" {
     sku       = "22_04-lts-gen2"
     version   = "latest"
   }
-
-
 }
 
 resource "null_resource" "executor" {
@@ -2965,7 +2963,6 @@ resource "aws_subnet" "subnets" {
     Env  = terraform.workspace
     Type = contains(var.subnet_info.public_subnet_names, var.subnet_info.names[count.index]) ? "Public" : "Private"
   }
-
 }
 
 resource "aws_internet_gateway" "igw" {
@@ -3004,7 +3001,6 @@ data "aws_subnets" "private_subnets" {
   tags = {
     Type = "Private"
   }
-
 }
 
 resource "aws_route_table_association" "public" {
@@ -3016,7 +3012,6 @@ resource "aws_route_table_association" "public" {
     data.aws_subnets.private_subnets,
     aws_subnet.subnets
   ]
-
 }
 ```
 * `outputs.tf`
@@ -3063,7 +3058,6 @@ module "aws_vpc" {
     names               = ["web", "app", "db", "mgmt"]
     public_subnet_names = ["web"]
   }
-
 }
 
 output "public_subnets" {
