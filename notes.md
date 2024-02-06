@@ -2157,41 +2157,931 @@ output "web_ip" {
 
 * Create a dynamo DB table with any name and partition key `LockID`
 * For the changes to add `s3 backend`
+
 * `network.tf`
-  ```
-  resource "aws_vpc" "ntier" {
-    cidr_block = "192.168.0.0/16"
-    tags = {
-      Name = "ntier"
-    }
+```
+resource "aws_vpc" "ntier" {
+  cidr_block = "192.168.0.0/16"
+  tags = {
+    Name = "ntier"
   }
-  ```
+}
+```
 * `provider.tf`
-  ```
-  terraform {
-    required_providers {
-      aws = {
-        source  = "hashicorp/aws"
-        version = "4.60.0"
-      }
-    }
-    required_version = "> 1.0.0"
-    backend "s3" {
-      bucket         = "terraformremotebackendqt"
-      key            = "classes/hellotf"
-      dynamodb_table = "terraformlock"
-      region         = "us-west-2"
+```
+terraform {
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = "4.60.0"
     }
   }
+  required_version = "> 1.0.0"
+  backend "s3" {
+    bucket         = "terraformremotebackendqt"
+    key            = "classes/hellotf"
+    dynamodb_table = "terraformlock"
+    region         = "us-west-2"
+  }
+}
 
-  provider "aws" {
+provider "aws" {
   # Configuration options
+}
+```
+* Perform `init` on both user machines
+
+* Now let's user1 apply the changes
+
+* Now while user1 is still applying let user 2 also apply
+
+* Let user1 finish applying and create the resources
+
+* Now let user2 try applying
+
+
+
+* Exercise: Configure Azurerm backend, which has inbuilt locking facility
+
+  [ Refer here : https://developer.hashicorp.com/terraform/language/settings/backends/azurerm ]
+
+### Next Steps
+
+* Provisioning
+* Immutable Infrastructure
+
+### Problem with Backends
+
+* If we use the backends using same template for managing different environmets will be tricky.
+* When user 1 tries update Dev it should not stop user 2 to update QA environments
+
+![alt text](shots/24.PNG)
+
+* The basic idea is to use the same template across environments
+* Terraform has workspaces
+
+### Terraform workspaces
+
+* For workspaces doc's
+
+  [ Refer here : https://developer.hashicorp.com/terraform/language/state/workspaces ] 
+  
+* For terraform workspaces cli
+
+  [ Refer here : https://developer.hashicorp.com/terraform/cli/commands/workspace ]
+
+* Terraform by default assumes the current workspace is default
+
+
+
+* Let's create a workspace called as dev by user 1
+
+
+
+* For changes 
+
+* `inputs.tf`
+```
+variable "cidr-block" {
+    type = string
+    default = "192.168.0.0/16"
+}
+
+variable "region" {
+    type = string
+    default = "us-west-2"
+}
+```
+* `network.tf`
+```
+resource "aws_vpc" "ntier" {
+  cidr_block = var.cidr-block
+  tags = {
+    Name = "ntier-${terraform.workspace}"
+    Env = terraform.workspace
   }
- ```
+}
+```
+* `provider.tf`
+```
+terraform {
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = "4.60.0"
+    }
+  }
+  required_version = "> 1.0.0"
+  backend "s3" {
+    bucket         = "terraformremotebackendqt"
+    key            = "classes/hellotf"
+    dynamodb_table = "terraformlock"
+    region         = "us-west-2"
+  }
+}
+
+provider "aws" {
+  # Configuration options
+  region = var.region
+}
+``` 
+* Now let's create dev environment and apply the changes from user1 and created the qa environment and apply the changes from user 2
+* Terraform will allow both the users to create in parallel
+* Used conditional expression for creating a bastion subnet in qa, for changes
+
+* `network.tf`
+```
+resource "aws_vpc" "ntier" {
+  cidr_block = var.cidr-block
+  tags = {
+    Name = "ntier-${terraform.workspace}"
+    Env = terraform.workspace
+  }
+}
+
+resource "aws_subnet" "bastion" {
+  count = terraform.workspace == "qa" ? 1 : 0
+  vpc_id = aws_vpc.ntier.id
+  cidr_block = "10.10.255.0"
+}
+```
+* For conditional expressions in terraform
+
+  [ Refer here : https://developer.hashicorp.com/terraform/language/expressions/conditionals ]
+
+* Terraform allows multiple environments from one template with workspaces
+
+### Problem
+
+* For the change which used count to create three files
+
+* `network.tf`
+```
+resource "aws_vpc" "ntier" {
+  cidr_block = var.cidr-block
+  tags = {
+    Name = "ntier-${terraform.workspace}"
+    Env = terraform.workspace
+  }
+}
+
+resource "aws_subnet" "bastion" {
+  count = terraform.workspace == "qa" ? 1 : 0
+  vpc_id = aws_vpc.ntier.id
+  cidr_block = "10.10.255.0/24"
+}
+```
+* Now let's make a small change, where the second item from list is removed
+
+* `dev.tfvars`
+```
+filenames = ["test1.txt", "test3.txt"]
+```
+* Now apply to see the plan
 
 
 
+* Terraform is deleting `test2.txt` and `test3.txt` also and then creates `test3.txt` again to maintain state
+* To solve this problem we can use `for_each` 
 
+  [ Refer here : https://developer.hashicorp.com/terraform/language/meta-arguments/for_each ]
+
+* Exercise: Try solving the above problem with `for_each`
+
+### Interpolation in terraform
+
+* Interpolation can be acheived by using format function or `${var}` expresssion
+
+
+
+### Terraform Modules
+
+* Terraform modules are reusable terraform templates
+* There are lot of community modules on terraform registry
+* Module demo, for module usage with aws
+* `main.tf`
+```
+module "vpc" {
+  source = "terraform-aws-modules/vpc/aws"
+
+  name = "my-vpc"
+  cidr = "10.0.0.0/16"
+
+  azs             = ["us-west-2a", "us-west-2b", "us-west-2c"]
+  private_subnets = ["10.0.1.0/24", "10.0.2.0/24", "10.0.3.0/24"]
+  public_subnets  = ["10.0.101.0/24", "10.0.102.0/24", "10.0.103.0/24"]
+
+  enable_nat_gateway = false
+  enable_vpn_gateway = false
+
+  tags = {
+    Terraform = "true"
+    Environment = "dev"
+  }
+}
+```
+* `provider.tf`
+```
+provider "aws" {
+    region  = "us-west-2"
+}
+```
+* To create ec2 
+
+  [ Refer here : https://registry.terraform.io/modules/terraform-aws-modules/ec2-instance/aws/latest ]
+
+### Terraform provisioners
+
+* Provisioners are for performing activities in local or remote instance after resource creation
+  * local 
+  
+    [ Refer here : https://developer.hashicorp.com/terraform/language/resources/provisioners/syntax#provisioners ]
+
+  * remote 
+  
+    [ Refer here : https://developer.hashicorp.com/terraform/language/resources/provisioners/remote-exec ]
+
+### Terraform interview questions
+
+* What is terraform
+* What is infrastructure as Code
+* Can Ansible replace Terraform
+* What is resource, argument and attribute
+* What is terraform lifecycle:
+  * here we have three stages
+    * create
+    * modify
+    * delete
+  * actions:
+    * op
+    * no-op
+* What is terraform registry: this is collection of modules
+* How to use two providers
+  * use alias
+```
+provider "aws" {
+region = "us-west-2"
+alias = red
+}
+
+provider "aws" {
+region = "us-west-2"
+alias = green
+}
+
+resource "aws_vpc" "red_vpc" {
+provider = aws.red
+}
+
+resource "aws_vpc" "green_vpc" {
+provider = aws.green
+}
+```
+* How to use terraform in ci/cd pipeline
+  * on jenkins node install terraform
+  * sh `terraform apply -auto-approve`
+  * azure devops:
+    * bash `terraform apply -auto-approve`
+    * Terraform market place
+* What is the purpose of backend
+* What is the purpose of workspace
+* Write one terraform template to do resource creation
+* How to do zero down time deployments in terraform
+  * Create tags and apply terraform only of specific tags
+  * Use count with conditions
+* How to delete the resource which is managed by terraform
+```
+terraform state rm <resource-path>
+```
+* How to delete and recreate the resource during next apply
+```
+terraform taint <resource-path>
+```
+### Solving Problem with count using for each
+
+* For official doc's
+
+  [ Refer here : https://developer.hashicorp.com/terraform/language/meta-arguments/for_each ]
+
+* for the fix with _**toset**_ and _**foreach**_
+
+* `.terraform.tfstate.lock.info`
+```
+{"ID":"e0f606a0-ace2-7549-30ac-f29cd18fc5d9","Operation":"OperationTypeApply","Info":"","Who":"DESKTOP-TM7SH71\\Dell@DESKTOP-TM7SH71","Version":"1.3.9","Created":"2023-04-01T06:22:22.5621406Z","Path":"terraform.tfstate"}
+```
+* `main.tf`
+```
+resource "local_file" "foo" {
+  for_each = toset(var.filenames)
+  content  = "hello"
+  filename = each.key
+}
+```
+
+
+* For using _**foreach**_ with `map(object)`
+
+* `1.txt`
+```
+first
+```
+* `3.txt`
+```
+third
+```
+* `dev.tfvars`
+```
+filenames = ["test1.txt", "test3.txt"]
+fileinfo = {
+  "first" = {
+    content = "first"
+    name    = "1.txt"
+  },
+  "third" = {
+    content = "third"
+    name    = "3.txt"
+  }
+}
+```
+* `inputs.tf`
+```
+variable "filenames" {
+  type    = list(string)
+  default = ["test1.txt", "test2.txt", "test3.txt"]
+}
+
+variable "fileinfo" {
+  type = map(object({
+    name    = string
+    content = string
+  }))
+  default = {
+    "first" = {
+      content = "first"
+      name    = "1.txt"
+    },
+    "second" = {
+      content = "second"
+      name    = "2.txt"
+    }
+  }
+}
+```
+* `main.tf`
+```
+resource "local_file" "foo" {
+  for_each = var.fileinfo
+  content  = each.value.content
+  filename = each.value.name
+}
+```
+### Immutable Infrastructure
+
+* When there is any change needed to be done in infra change template not infra
+* Every change needs to be version controlled
+
+### Provisioners
+
+* For provisioners
+
+  [ Refer here : https://developer.hashicorp.com/terraform/language/resources/provisioners/syntax ]
+
+* Terraform recommends using cloud-init custom data or user-date instead of provisioners if possible 
+
+  [ Refer here : https://developer.hashicorp.com/terraform/language/resources/provisioners/syntax#passing-data-into-virtual-machines-and-other-compute-resources ]
+
+* For the changes
+
+* `apache.sh`
+```
+#!/bin/bash
+sudo apt update
+sudo apt install apache2 -y
+```
+* `datasources.tf`
+```
+data "aws_vpc" "default" {
+  default = true
+}
+
+data "aws_subnet" "first" {
+  vpc_id            = data.aws_vpc.default.id
+  availability_zone = "${var.region}a"
+}
+```
+* `inputs.tf`
+```
+variable "region" {
+  type    = string
+  default = "us-west-2"
+}
+```
+* `outputs.tf`
+```
+output "apacheurl" {
+    value = format("http://%s",aws_instance.apache.public_ip)
+}
+```
+* `providers.tf`
+```
+provider "aws" {
+  region = var.region
+}
+```
+* `resources.tf`
+```
+resource "aws_instance" "apache" {
+  ami                         = "ami-0fcf52bcf5db7b003" #todo:  replace this with data source
+  instance_type               = "t2.micro"
+  associate_public_ip_address = true
+  key_name                    = "my_id_rsa" #todo:  replace this with data source
+  subnet_id                   = data.aws_subnet.first.id
+  user_data                   = file("apache.sh")
+  vpc_security_group_ids      = ["sg-05adaf452b268c335"]
+}
+```
+* For the changes done in azure to create vm with custom_data
+
+* `apache.sh`
+```
+#!/bin/bash
+sudo apt update
+sudo apt install apache2 -y
+```
+* `datasources.tf`
+```
+data "azurerm_subnet" "example" {
+  name                 = "Subnet-1"
+  virtual_network_name = "ntier"
+  resource_group_name  = "testbicep"
+}
+
+data "azurerm_network_security_group" "openall" {
+  name                = "openall"
+  resource_group_name = "testbicep"
+}
+```
+* `inputs.tf`
+```
+```
+* `outputs.tf`
+```
+output "apacheurl" {
+  value = "http://${azurerm_linux_virtual_machine.apache.public_ip_address}"
+}
+```
+* `providers.tf`
+```
+provider "azurerm" {
+  features {
+  }
+}
+```
+* `resources.tf`
+```
+resource "azurerm_public_ip" "webip" {
+  name                = "webip"
+  resource_group_name = "testbicep"
+  location            = "eastus"
+  allocation_method   = "Static"
+}
+
+resource "azurerm_network_interface" "webnic" {
+  name                = "webnic"
+  resource_group_name = "testbicep"
+  location            = "eastus"
+  ip_configuration {
+    name                          = "config1"
+    subnet_id                     = data.azurerm_subnet.example.id
+    public_ip_address_id          = azurerm_public_ip.webip.id
+    private_ip_address_allocation = "Dynamic"
+  }
+}
+
+resource "azurerm_network_interface_security_group_association" "nicsg" {
+  network_interface_id      = azurerm_network_interface.webnic.id
+  network_security_group_id = data.azurerm_network_security_group.openall.id
+}
+
+resource "azurerm_linux_virtual_machine" "apache" {
+  name                = "apache"
+  resource_group_name = "testbicep"
+  location            = "eastus"
+  size                = "Standard_B1s"
+  admin_username      = "Dell"
+  network_interface_ids = [
+    azurerm_network_interface.webnic.id,
+  ]
+
+  admin_ssh_key {
+    username   = "Dell"
+    public_key = file("~/.ssh/id_rsa.pub")
+  }
+
+  os_disk {
+    caching              = "ReadWrite"
+    storage_account_type = "Standard_LRS"
+  }
+
+  source_image_reference {
+    publisher = "Canonical"
+    offer     = "0001-com-ubuntu-server-jammy"
+    sku       = "22_04-lts-gen2"
+    version   = "latest"
+  }
+  custom_data = filebase64("apache.sh")
+}
+```
+### Terraform provisioners
+
+* Terraform has two kinds of provisioners
+  * _**local-exec**_ : This executes on the machine where terraform apply is executed
+  * _**remote-exec**_ : This executes on the remote machine generally the machine created
+* _**file provisioner**_ : which is used to copy file from local to remote
+* For remote provisoners and file provisoners copying into remote we need connections to be managed 
+
+  [ Refer here : https://developer.hashicorp.com/terraform/language/resources/provisioners/connection ]
+
+* we can specify when to do provisioning
+  * during create
+  * during destroy
+* For provisioner in azure
+
+* `resources.tf`
+```
+resource "azurerm_public_ip" "webip" {
+  name                = "webip"
+  resource_group_name = "testbicep"
+  location            = "eastus"
+  allocation_method   = "Static"
+}
+resource "azurerm_network_interface" "webnic" {
+  name                = "webnic"
+  resource_group_name = "testbicep"
+  location            = "eastus"
+  ip_configuration {
+    name                          = "config1"
+    subnet_id                     = data.azurerm_subnet.example.id
+    public_ip_address_id          = azurerm_public_ip.webip.id
+    private_ip_address_allocation = "Dynamic"
+  }
+}
+resource "azurerm_network_interface_security_group_association" "nicsg" {
+  network_interface_id      = azurerm_network_interface.webnic.id
+  network_security_group_id = data.azurerm_network_security_group.openall.id
+}
+resource "azurerm_linux_virtual_machine" "apache" {
+  name                = "apache"
+  resource_group_name = "testbicep"
+  location            = "eastus"
+  size                = "Standard_B1s"
+  admin_username      = "Dell"
+  network_interface_ids = [
+    azurerm_network_interface.webnic.id,
+  ]
+  admin_ssh_key {
+    username   = "Dell"
+    public_key = file("~/.ssh/id_rsa.pub")
+  }
+  os_disk {
+    caching              = "ReadWrite"
+    storage_account_type = "Standard_LRS"
+  }
+  source_image_reference {
+    publisher = "Canonical"
+    offer     = "0001-com-ubuntu-server-jammy"
+    sku       = "22_04-lts-gen2"
+    version   = "latest"
+  }
+  connection {
+    type        = "ssh"
+    user        = self.admin_username
+    private_key = file("~/.ssh/id_rsa")
+    host        = self.public_ip_address
+  }
+  provisioner "remote-exec" {
+    inline = ["sudo apt update", "sudo apt install apache2 -y"]
+  }
+}
+```
+* For the changes to perform provisioning in aws
+
+* `outputs.tf`
+```
+output "apacheurl" {
+  value = format("http://%s", aws_instance.apache.public_ip)
+}
+```
+* `resources.tf`
+```
+resource "aws_instance" "apache" {
+  ami                         = "ami-0fcf52bcf5db7b003" #todo:  replace this with data source
+  instance_type               = "t2.micro"
+  associate_public_ip_address = true
+  key_name                    = "my_id_rsa" #todo:  replace this with data source
+  subnet_id                   = data.aws_subnet.first.id
+  user_data                   = file("apache.sh")
+  vpc_security_group_ids      = ["sg-05adaf452b268c335"]
+
+  connection {
+    host        = self.public_ip
+    user        = "ubuntu"
+    private_key = file("~/.ssh/id_rsa")
+    type        = "ssh"
+  }
+  provisioner "remote-exec" {
+    inline = ["sudo apt update", "sudo apt install apache2 -y"]
+  }
+}
+```
+* Terraform taint is used to mark a resource for recreation during next apply
+
+* When we want to change the script every time to make it work, we should be taiting `terraform taint <resourcetype>.<resourcename>`
+* To solve this problem we use `null_resource` 
+
+  [ Refer here : https://registry.terraform.io/providers/hashicorp/null/latest/docs/resources/resource ]
+
+* For the usage of null resource in terraform aws example
+
+* `inputs.tf`
+```
+variable "region" {
+  type    = string
+  default = "us-west-2"
+}
+
+variable "rollout_version" {
+  type    = string
+  default = "0.0.0.0"
+}
+```
+* `resources.tf`
+```
+resource "aws_instance" "apache" {
+  ami                         = "ami-0fcf52bcf5db7b003" #todo:  replace this with data source
+  instance_type               = "t2.micro"
+  associate_public_ip_address = true
+  key_name                    = "my_id_rsa" #todo:  replace this with data source
+  subnet_id                   = data.aws_subnet.first.id
+  user_data                   = file("apache.sh")
+  vpc_security_group_ids      = ["sg-05adaf452b268c335"]
+}
+
+resource "null_resource" "executor" {
+  triggers = {
+    rollout_version = var.rollout_version
+  }
+  connection {
+    host        = aws_instance.apache.public_ip
+    user        = "ubuntu"
+    private_key = file("~/.ssh/id_rsa")
+    type        = "ssh"
+  }
+  provisioner "remote-exec" {
+    inline = ["sudo apt update", "sudo apt install apache2 -y"]
+  }
+}
+```
+* For changes in terraform azure example
+
+* `inputs.tf`
+```
+variable "rollout_version" {
+  type    = string
+  default = "0.0.0.0"
+}
+```
+* `resources.tf`
+```
+resource "azurerm_public_ip" "webip" {
+  name                = "webip"
+  resource_group_name = "testbicep"
+  location            = "eastus"
+  allocation_method   = "Static"
+}
+resource "azurerm_network_interface" "webnic" {
+  name                = "webnic"
+  resource_group_name = "testbicep"
+  location            = "eastus"
+  ip_configuration {
+    name                          = "config1"
+    subnet_id                     = data.azurerm_subnet.example.id
+    public_ip_address_id          = azurerm_public_ip.webip.id
+    private_ip_address_allocation = "Dynamic"
+  }
+}
+resource "azurerm_network_interface_security_group_association" "nicsg" {
+  network_interface_id      = azurerm_network_interface.webnic.id
+  network_security_group_id = data.azurerm_network_security_group.openall.id
+}
+resource "azurerm_linux_virtual_machine" "apache" {
+  name                = "apache"
+  resource_group_name = "testbicep"
+  location            = "eastus"
+  size                = "Standard_B1s"
+  admin_username      = "Dell"
+  network_interface_ids = [
+    azurerm_network_interface.webnic.id,
+  ]
+  admin_ssh_key {
+    username   = "Dell"
+    public_key = file("~/.ssh/id_rsa.pub")
+  }
+  os_disk {
+    caching              = "ReadWrite"
+    storage_account_type = "Standard_LRS"
+  }
+  source_image_reference {
+    publisher = "Canonical"
+    offer     = "0001-com-ubuntu-server-jammy"
+    sku       = "22_04-lts-gen2"
+    version   = "latest"
+  }
+
+
+}
+
+resource "null_resource" "executor" {
+  triggers = {
+    rollout_version = var.rollout_version
+  }
+
+  connection {
+    type        = "ssh"
+    user        = azurerm_linux_virtual_machine.apache.admin_username
+    private_key = file("~/.ssh/id_rsa")
+    host        = azurerm_linux_virtual_machine.apache.public_ip_address
+  }
+  provisioner "remote-exec" {
+    inline = ["sudo apt update", "sudo apt install apache2 -y", "sudo apt install openjdk-11-jdk -y"]
+  }
+}
+```
+### Building Reusable templates in Terraform using Modules
+
+* For the template which can create vpc with public and private subnets
+
+* `inputs.tf`
+```
+variable "region" {
+  type    = string
+  default = "us-west-2"
+}
+
+variable "vpc_cidr_block" {
+  type        = string
+  description = "(optional) describe your variable"
+  default     = "192.168.0.0/16"
+}
+
+# Give me 5 mins
+variable "subnet_info" {
+  type = object({
+    names               = list(string)
+    public_subnet_names = list(string)
+  })
+  default = {
+    names               = ["web", "app", "db", "mgmt"]
+    public_subnet_names = ["web", "mgmt"]
+  }
+}
+```
+* `main.tf`
+```
+resource "aws_vpc" "ntier" {
+  cidr_block = var.vpc_cidr_block
+  tags = {
+    Name = "ntier",
+    Env  = terraform.workspace
+  }
+}
+
+resource "aws_subnet" "subnets" {
+  count      = length(var.subnet_info.names)
+  cidr_block = cidrsubnet(var.vpc_cidr_block, 8, count.index)
+  vpc_id     = aws_vpc.ntier.id
+  tags = {
+    Name = var.subnet_info.names[count.index],
+    Env  = terraform.workspace
+    Type = contains(var.subnet_info.public_subnet_names, var.subnet_info.names[count.index]) ? "Public" : "Private"
+  }
+
+}
+
+resource "aws_internet_gateway" "igw" {
+  vpc_id = aws_vpc.ntier.id
+
+  tags = {
+    Name = "ntier"
+    Env  = terraform.workspace
+  }
+
+}
+
+resource "aws_route_table" "public" {
+  vpc_id = aws_vpc.ntier.id
+  route {
+    cidr_block = "0.0.0.0/0"
+    gateway_id = aws_internet_gateway.igw.id
+  }
+}
+
+data "aws_subnets" "public_subnets" {
+  filter {
+    name   = "vpc-id"
+    values = [aws_vpc.ntier.id]
+  }
+  tags = {
+    Type = "Public"
+  }
+
+}
+
+data "aws_subnets" "private_subnets" {
+  filter {
+    name   = "vpc-id"
+    values = [aws_vpc.ntier.id]
+  }
+  tags = {
+    Type = "Private"
+  }
+
+}
+
+resource "aws_route_table_association" "public" {
+  count          = length(var.subnet_info.public_subnet_names)
+  subnet_id      = data.aws_subnets.public_subnets.ids[count.index]
+  route_table_id = aws_route_table.public.id
+  depends_on = [
+    data.aws_subnets.public_subnets,
+    data.aws_subnets.private_subnets,
+    aws_subnet.subnets
+  ]
+
+}
+```
+* `outputs.tf`
+```
+output "vpc_id" {
+    value = aws_vpc.ntier.id
+}
+
+output "public_subnet_ids" {
+    value = data.aws_subnets.public_subnets.ids
+}
+
+output "private_subnet_ids" {
+    value = data.aws_subnets.private_subnets.ids
+}
+```
+* `providers.tf`
+```
+provider "aws" {
+  region = var.region
+}
+```
+* Now we want to make that reusable
+* To do that we need to create modules 
+  [ Refer here : https://developer.hashicorp.com/terraform/language/modules/syntax ]
+
+* Terraform modules has :
+  * inputs
+  * resources
+  * outputs
+* Group them and this becomes module
+* For module demo
+
+* `main.tf`
+```
+provider "aws" {
+  region = "us-west-2"
+}
+
+module "aws_vpc" {
+  source = "./modules/aws_vpc"
+  region = "us-west-2"
+  subnet_info = {
+    names               = ["web", "app", "db", "mgmt"]
+    public_subnet_names = ["web"]
+  }
+
+}
+
+output "public_subnets" {
+    value = module.aws_vpc.public_subnet_ids
+}
+```
+* Terraform registry hosts lot of community modules 
+
+  [ Refer here : https://registry.terraform.io/modules/terraform-aws-modules/vpc/aws/latest ]
+
+* For sample aws vpc communityt module
+
+  [ Refer here : https://registry.terraform.io/modules/terraform-aws-modules/vpc/aws/latest ]
+
+* Possible module sources 
+
+  [ Refer here : https://developer.hashicorp.com/terraform/language/modules/sources#module-sources ]
 
 
 
