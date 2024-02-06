@@ -2975,7 +2975,6 @@ resource "aws_internet_gateway" "igw" {
     Name = "ntier"
     Env  = terraform.workspace
   }
-
 }
 
 resource "aws_route_table" "public" {
