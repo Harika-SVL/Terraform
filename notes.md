@@ -2129,7 +2129,7 @@ output "web_ip" {
 ### Terraform Backends
 
 * Backend defines where the state has to be stored
-* For offical docs
+* For offical doc's
 
   [ Refer here : https://developer.hashicorp.com/terraform/language/state/backends ] 
   
@@ -2149,7 +2149,7 @@ output "web_ip" {
 
 ### Remote Backends with S3
 
-* For official docs
+* For official doc's
 
   [ Refer here : https://developer.hashicorp.com/terraform/language/settings/backends/s3 ]
 
