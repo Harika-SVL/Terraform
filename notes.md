@@ -519,6 +519,7 @@ provider "aws" {
 
   [ Refer Here : https://developer.hashicorp.com/terraform/language/values/variables#variable-definitions-tfvars-files ]
   * example `terraform apply -var-file values.tfvars`
+  
 * For the changes in azure terraform template
 `inputs.tf`
 ```
