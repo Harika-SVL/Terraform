@@ -688,13 +688,15 @@ ntier-db2-cidr  = "10.100.3.0/24"
   [ Refer Here : https://developer.hashicorp.com/terraform/language/meta-arguments/count ]
 
 * Let's apply the count for subnet creation, for changes
-  * `inputs.tf`
+
+* `inputs.tf`
 ```
 variable "region" {
   type        = string
   default     = "us-west-2"
   description = "Region to create resources"
 }
+
 variable "ntier-vpc-range" {
   type        = string
   default     = "192.168.0.0/16"
@@ -794,7 +796,7 @@ variable "ntier_vpc_info" {
     vpc_cidr     = string,
     subnet_azs   = list(string),
     subnet_names = list(string)
-  })
+   })
   default = {
     subnet_azs   = ["a", "b", "a", "b"]
     subnet_names = ["app1", "app2", "db1", "db2"]
