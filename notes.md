@@ -455,7 +455,7 @@ resource "aws_vpc" "ntier" {
 
 ### Input Variables
 
-* For input variables official docs
+* For input variables official doc's
 
   [ Refer here : https://developer.hashicorp.com/terraform/language/values/variables ]
 
@@ -844,7 +844,7 @@ ntier_vpc_info = {
 ```
 {"ID":"369b9c9c-99ce-574e-b2dc-248e60926f4e","Operation":"OperationTypeApply","Info":"","Who":"DESKTOP-TM7SH71\\Dell@DESKTOP-TM7SH71","Version":"1.3.9","Created":"2023-03-23T03:39:17.249786Z","Path":"terraform.tfstate"}
 ```
-  * `inputs.tf`
+* `inputs.tf`
 ```
 variable "location" {
   type        = string
@@ -862,7 +862,7 @@ variable "subnet_names" {
   default = ["web", "app", "db"]
 }
 ```
-  * `main.tf`
+* `main.tf`
 ```
 resource "azurerm_resource_group" "ntierrg" {
   location = var.location
@@ -902,7 +902,7 @@ location     = "eastus"
 vnet_range   = ["10.0.0.0/16"]
 subnet_names = ["app", "db"]
 ```
-  * `inputs.tf`
+* `inputs.tf`
 ```
 variable "location" {
   type        = string
@@ -931,7 +931,7 @@ variable "names" {
   }
 }
 ```
-  * `main.tf`
+* `main.tf`
 ```
 resource "azurerm_resource_group" "ntierrg" {
   location = var.location
@@ -990,7 +990,7 @@ resource "azurerm_mssql_server" "sql_server" {
   }
 }
 ```
-  * `inputs.tf`
+* `inputs.tf`
 ```
 variable "location" {
   type        = string
@@ -1124,7 +1124,7 @@ resource "azurerm_linux_virtual_machine" "appserver" {
   ]
 }
 ```
-  * `database.tf`
+* `database.tf`
 ```
 resource "azurerm_mssql_server" "sql_server" {
   name                         = var.names.sql_server
@@ -1279,7 +1279,7 @@ resource "azurerm_mssql_database" "sql_emp_db" {
   ]
 }
 ``` 
-  * `dev.tfvars`
+* `dev.tfvars`
 ```
 location     = "eastus"
 vnet_range   = ["10.0.0.0/16"]
@@ -1291,7 +1291,7 @@ network_interface_info = {
   subnet_index         = 0
 }
 ```
-  * `inputs.tf`
+* `inputs.tf`
 ```
 variable "location" {
   type        = string
@@ -1686,7 +1686,7 @@ resource "aws_security_group" "db" {
   ]
 }
 ```
-  * `localvalues.tf`
+* `localvalues.tf`
 ```
 locals {
   vpc_id     = aws_vpc.ntier.id
@@ -1738,7 +1738,7 @@ resource "aws_db_subnet_group" "ntier" {
   ]
 }
 ```
-  * `dev.tfvars`
+* `dev.tfvars`
 ```
 region = "us-west-2"
 ntier_vpc_info = {
@@ -1902,7 +1902,7 @@ resource "aws_db_instance" "empdb" {
 * Create an ec2 instance in `web1`subnet
 * Steps :
   * Create security group 
-  * `compute.tf`
+* `compute.tf`
 ```
 resource "aws_security_group" "web" {
   name = "web"
@@ -1929,8 +1929,8 @@ resource "aws_security_group" "web" {
   ]
 }
 ```
-  * `localvalues.tf`
-  ```
+* `localvalues.tf`
+```
   locals {
   vpc_id     = aws_vpc.ntier.id
   anywhere   = "0.0.0.0/0"
