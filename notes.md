@@ -617,7 +617,7 @@ variable "ntier-db2-cidr" {
   default = "192.168.3.0/24"
 }
 ```
-  * `main.tf`
+* `main.tf`
 ```
 resource "aws_vpc" "ntier" {
   cidr_block = var.ntier-vpc-range
@@ -674,7 +674,7 @@ resource "aws_subnet" "db2" {
   ]
 }
 ```
-  * values.tfvars
+* `values.tfvars`
 ```
 region          = "us-west-2"
 ntier-vpc-range = "10.100.0.0/16"
@@ -718,7 +718,7 @@ variable "ntier-subnet-names" {
   default = ["app1", "app2", "db1", "db2"]
 }
 ```
-  * `main.tf`
+* `main.tf`
 ```
 resource "aws_vpc" "ntier" {
   cidr_block = var.ntier-vpc-range
@@ -743,7 +743,7 @@ resource "aws_subnet" "subnets" {
   ]
 }
 ```
-  * `values.tfvars`
+* `values.tfvars`
 ```
 region             = "us-west-2"
 ntier-vpc-range    = "10.100.0.0/16"
