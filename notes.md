@@ -47,7 +47,7 @@
 * _**CloudFormation**_ : Can create infra in AWS
 * Infraprovisiong tools use `IaC` which are generally idempotent
 * _**Idempotance**_ is the property which states execution one time or multiple times leads to the same result
-* `Reusability` is extremely simple and terraform can also handle multiple environments ( Developer, QA, UAT/Staging/Production )
+* _**Reusability**_ is extremely simple and terraform can also handle multiple environments ( Developer, QA, UAT/Staging/Production )
 
 ### Terraform
 
@@ -63,7 +63,7 @@
 
 #### Installing terraform
 
-* For official docs
+* For official doc's
 
     [ Refer here : https://developer.hashicorp.com/terraform/install ]
 
@@ -200,7 +200,7 @@ resource "azurerm_storage_account" "example" {
 #### AWS Provider
 
 * Terraform aws provider uses the `AWS API's` to get the infra created
-* To Create infrastructure in your AWS Account, it needs `AWS programatic credentials (_**Secret access key and access key**_)`
+* To create infrastructure in your AWS Account, it needs `AWS programatic credentials ( _**Secret access key and access key**_ )`
 
 ![Alt text](shots/10.PNG)
 
@@ -270,7 +270,7 @@ terraform destroy
 
   [ Refer here : https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs ]
 
-* To install azure cli and to authenticate azure cli
+* To install `Azure CLI` and to authenticate azure cli
 
   [ Refer Here : https://learn.microsoft.com/en-us/cli/azure/install-azure-cli-linux?pivots=apt#option-1-install-with-one-command ]
   
@@ -293,7 +293,7 @@ provider "<name>" {
 ```
 * The type of resource will be in the form of `<provider>_<resource_type>`
 
-### Manual Steps of VPC Creation
+### Manual steps of VPC creation
 
 * Steps : Let's create a simple vpc
 * Let's search for resource which lead to 
@@ -320,7 +320,7 @@ resource "aws_vpc" "ntier" {
 
 ### Activity : Create virtual network ( Vnet ) in Azure
 
-* Manual Steps:
+* Manual steps:
   * Create resource group
 
 ![Alt text](shots/11.PNG)
@@ -475,7 +475,9 @@ resource "aws_vpc" "ntier" {
 
   [ Refer Here : https://developer.hashicorp.com/terraform/language/values/variables#variables-on-the-command-line ]
 
-`terraform apply -var "region=ap-south-2" -var "ntier-vpc-range=10.10.0.0/16"`
+```
+terraform apply -var "region=ap-south-2" -var "ntier-vpc-range=10.10.0.0/16"
+```
 * For the changes to use variables `inputs.tf`
 ```
 variable "region" {
