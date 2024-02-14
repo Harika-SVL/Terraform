@@ -131,6 +131,11 @@ yes                 #approval to create infra
 terraform apply     #already existing
 terraform destroy   #deleting the created infra
 ```
+![alt text](shots/25.PNG)
+![alt text](shots/26.PNG)
+![alt text](shots/27.PNG)
+![alt text](shots/28.PNG)
+
 * Creating a template with `Azure`
 ```
 terraform {
@@ -163,6 +168,8 @@ resource "azurerm_storage_account" "example" {
   }
 }
 ```
+![alt text](shots/29.PNG)
+
 #### Basic workflow
 
 ![Alt text](shots/6.PNG)
@@ -196,6 +203,8 @@ resource "azurerm_storage_account" "example" {
 * Create a _**linux VM**_ and _**ssh**_ into it and execute the steps based on your distribution from here 
 
 [ Refer here : https://developer.hashicorp.com/terraform/install#Linux ]
+
+![alt text](shots/30.PNG)
 
 #### AWS Provider
 
