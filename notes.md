@@ -231,8 +231,8 @@ vi main.tf
 ```
 provider "aws" {
   region     = "us-west-2"
-  access_key = "my-access-key"
-  secret_key = "my-secret-key"
+  access_key = "my-access-key" ( efgwcYvyn8B48YzHkCBH+gJrnaO3ewIih+bMqrSm )
+  secret_key = "my-secret-key" ( AKIA47CRVFTPMZMT7MOT )
 }
 ```
 * Run it using commands
@@ -240,6 +240,9 @@ provider "aws" {
 terraform init
 terraform validate
 ```
+![alt text](shots/31.PNG)
+![alt text](shots/32.PNG)
+
 * This is not a great way as we are having sensitive information in the text format
 * Best way is to _**install aws cli**_ on the machine with terraform and terraform will _**automatically pickup credentials**_ from there
 * Installing aws cli 
@@ -256,6 +259,9 @@ aws --version
 aws configure
     ## give the access key, secret key and region
 ```
+![alt text](shots/33.PNG)
+![alt text](shots/34.PNG)
+
 * Create a new folder `test2`
 ```
 mkdir test2
@@ -273,6 +279,8 @@ terraform init
 terraform validate
 terraform destroy
 ```
+![alt text](shots/35.PNG)
+
 ### Azure Provider
 
 * For the provider documentation
