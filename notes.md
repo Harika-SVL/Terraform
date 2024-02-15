@@ -430,7 +430,7 @@ terraform destroy
 
   [ Refer Here : https://developer.hashicorp.com/terraform/language/expressions/version-constraints ]
 
-* For changes
+* For changes in `main.tf`
 ```
 terraform {
   required_version = ">= 1.0.0"
@@ -442,8 +442,10 @@ terraform {
   }
 }
 
+
 provider "aws" {
 }
+
 resource "aws_vpc" "ntier" {
     cidr_block = "192.168.0.0/16"
     tags = {
@@ -512,6 +514,7 @@ terraform {
     }
   }
 }
+
 
 provider "aws" {
   region = var.region
