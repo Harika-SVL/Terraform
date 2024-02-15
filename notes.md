@@ -313,15 +313,26 @@ provider "<name>" {
 ### Manual steps of VPC creation
 
 * Steps : Let's create a simple vpc
+
+=> Navigate to VPC => Create VPC => VPC only => IPv4 CIDR manual input => CIDR => No IPv6 CIDR block => Create VPC 
+
+![alt text](shots/36.PNG)
+![alt text](shots/37.PNG)
+![alt text](shots/38.PNG)
+![alt text](shots/39.PNG)
+![alt text](shots/40.PNG)
+
 * Let's search for resource which lead to 
 
   [ Refer Here : https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/vpc ]
+
+![alt text](shots/41.PNG)
 
 * Now look at arguments 
 
   [ Refer Here : https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/vpc#argument-reference ]
 
-* Create the template as shown in this changeset 
+* Create the template as shown below 
 ```
 provider "aws" {
 }
@@ -334,6 +345,9 @@ resource "aws_vpc" "ntier" {
 }
 ```
 * Now validate and apply
+
+![alt text](shots/42.PNG)
+![alt text](shots/43.PNG)
 
 ### Activity : Create virtual network ( Vnet ) in Azure
 
