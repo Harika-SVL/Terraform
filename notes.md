@@ -366,37 +366,6 @@ resource "aws_vpc" "ntier" {
 ### Writing template for the above in terraform
 
 * Terraform takes the folder as input and reads all the `.tf` files and while validating, applying or destroying tries to treat all the `.tf` files as one file
-* For the changeset `main.tf`
-```
-resource "azurerm_resource_group" "ntierrg" {
-  location = "eastus"
-  name     = "ntier-rg"
-}
-
-resource "azurerm_virtual_network" "ntiervnet" {
-  name                = "ntier-vnet"
-  resource_group_name = "ntier-rg"
-  address_space       = ["192.168.0.0/16"]
-  location            = "eastus"
-}
-```
-* `provider.tf`
-```
-provider "azurerm" {
-  features {}
-}
-```
-* To execute the above
-```
-terraform init
-terrform validate
-terraform fmt
-terraform apply
-yes          ## resource group creation
-terraform apply
-yes          ## vnet creation
-terraform destroy
-```
 * To _**create dependencies**_ we can use `depends_on` meta argument ( to avoid the multiple apply statements to create different resources)
 
   [ Refer Here : https://developer.hashicorp.com/terraform/language/meta-arguments/depends_on ]
