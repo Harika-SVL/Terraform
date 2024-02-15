@@ -231,8 +231,8 @@ vi main.tf
 ```
 provider "aws" {
   region     = "us-west-2"
-  access_key = "my-access-key" ( efgwcYvyn8B48YzHkCBH+gJrnaO3ewIih+bMqrSm )
-  secret_key = "my-secret-key" ( AKIA47CRVFTPMZMT7MOT )
+  access_key = "my-access-key" 
+  secret_key = "my-secret-key" 
 }
 ```
 * Run it using commands
