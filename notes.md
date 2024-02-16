@@ -533,7 +533,8 @@ terraform fmt
 terraform validate
 terraform apply -var "region=ap-south-2" -var "ntier-vpc-range=10.10.0.0/16"
 ```
-
+![alt text](shots/47.PNG)
+![alt text](shots/48.PNG)
 
 2. using `-var-file`
 
@@ -553,7 +554,8 @@ terraform fmt
 terraform validate
 terraform apply -var-file values.tfvars
 ```
-
+![alt text](shots/49.PNG)
+![alt text](shots/50.PNG)
   
 * For the changes in `azure` terraform template
 `inputs.tf`
@@ -618,12 +620,15 @@ vnet-range = ["10.100.0.0/16"]
 
 => select VPC => Subnets => Create subnet => select VPC ID => Give name, Availability zone, CIDR block
 
+![alt text](shots/45.PNG)
+![alt text](shots/46.PNG)
+
 * To access outputs i.e., attributes of a resource syntax is `<resoure_type>.<name>.<atrribute-name>`
-* For the changes `inputs.tf`
+* For the changes `subnets` - `inputs.tf`
 ```
 variable "region" {
   type        = string
-  default     = "us-west-2"
+  default     = "us-east-1"
   description = "Region to create resources"
 }
 variable "ntier-vpc-range" {
