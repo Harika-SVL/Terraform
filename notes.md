@@ -430,7 +430,7 @@ terraform destroy
 
   [ Refer Here : https://developer.hashicorp.com/terraform/language/expressions/version-constraints ]
 
-* For changes in `main.tf`
+* For changes in `provider-version` - `main.tf`
 ```
 terraform {
   required_version = ">= 1.0.0"
@@ -442,7 +442,6 @@ terraform {
   }
 }
 
-
 provider "aws" {
 }
 
@@ -453,6 +452,16 @@ resource "aws_vpc" "ntier" {
     }
 }
 ```
+* To execute we use
+```
+terraform init
+terraform fmt
+terraform validate
+terraform apply
+terraform destroy
+```
+![alt text](shots/44.PNG)
+
 ### Parametrizing Terraform
 
 ### Input Variables
@@ -473,18 +482,16 @@ resource "aws_vpc" "ntier" {
 * To _**pass variables**_ while executing commands ( dynamically ) we have two options :
   * -var
   * -var-file
-* using `-var` 
+
+1. using `-var` 
 
   [ Refer Here : https://developer.hashicorp.com/terraform/language/values/variables#variables-on-the-command-line ]
 
-```
-terraform apply -var "region=ap-south-2" -var "ntier-vpc-range=10.10.0.0/16"
-```
-* For the changes to use variables `inputs.tf`
+* For the changes to `variables` - `inputs.tf`
 ```
 variable "region" {
   type        = string
-  default     = "us-west-2"
+  default     = "us-east-1"
   description = "Region to create resources"
 }
 
@@ -515,17 +522,40 @@ terraform {
   }
 }
 
-
 provider "aws" {
   region = var.region
 }
 ```
+* Execute
+```
+terraform init 
+terraform fmt
+terraform validate
+terraform apply -var "region=ap-south-2" -var "ntier-vpc-range=10.10.0.0/16"
+```
+
+
+2. using `-var-file`
+
 * using variable definitions 
 
   [ Refer Here : https://developer.hashicorp.com/terraform/language/values/variables#variable-definitions-tfvars-files ]
-  * example `terraform apply -var-file values.tfvars`
+
+* add `values.tfvars`
+```
+region = "us-east-1" 
+ntier-vpc-range = "10.100.0.0/16"
+```
+* Execute
+```
+terraform init 
+terraform fmt
+terraform validate
+terraform apply -var-file values.tfvars
+```
+
   
-* For the changes in azure terraform template
+* For the changes in `azure` terraform template
 `inputs.tf`
 ```
 variable "location" {
