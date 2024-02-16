@@ -723,6 +723,17 @@ ntier-app2-cidr = "10.100.1.0/24"
 ntier-db1-cidr  = "10.100.2.0/24"
 ntier-db2-cidr  = "10.100.3.0/24"
 ```
+* Execute 
+```
+terraform init
+terraform fmt
+terraform validate
+terraform apply -var-file .\values.tfvars
+```
+![alt text](shots/51.PNG)
+![alt text](shots/52.PNG)
+![alt text](shots/53.PNG)
+
 * To create multiple resources 
 
   [ Refer Here : https://developer.hashicorp.com/terraform/language/meta-arguments/count ]
