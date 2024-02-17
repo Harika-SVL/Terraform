@@ -734,11 +734,11 @@ terraform apply -var-file .\values.tfvars
 ![alt text](shots/52.PNG)
 ![alt text](shots/53.PNG)
 
-* To create multiple resources 
+#### Creating multiple resources 
 
   [ Refer Here : https://developer.hashicorp.com/terraform/language/meta-arguments/count ]
 
-* Let's apply the count for subnet creation, for changes
+* Let's apply the _**count**_ for subnet creation, for changes `count`
 
 * `inputs.tf`
 ```
@@ -789,9 +789,6 @@ resource "aws_subnet" "subnets" {
   tags = {
     Name = var.ntier-subnet-names[count.index]
   }
-  depends_on = [
-    aws_vpc.ntier
-  ]
 }
 ```
 * `values.tfvars`
@@ -800,15 +797,26 @@ region             = "us-west-2"
 ntier-vpc-range    = "10.100.0.0/16"
 ntier-subnet-cidrs = ["10.100.0.0/24", "10.100.1.0/24", "10.100.2.0/24", "10.100.3.0/24"]
 ```
-* Let's start using terraform functions to make further improvements using terraform functions 
+* Execute
+```
+terraform init
+terraform fmt
+terraform validate
+terraform apply -var-file .\values.tfvars
+```
+![alt text](shots/56.PNG)
+![alt text](shots/57.PNG)
+![alt text](shots/54.PNG)
+
+* Let's start using _**terraform functions**_ to make further improvements  
 
   [ Refer Here : https://developer.hashicorp.com/terraform/language/functions ]
 
-* Let's replace static count of `4` with length function 
+* Let's replace static `count of 4` with `length function` 
 
   [ Refer Here : https://developer.hashicorp.com/terraform/language/functions/length ]
 
-* For changeset `main.tf`
+* add `main.tf`
 ```
 resource "aws_vpc" "ntier" {
   cidr_block = var.ntier-vpc-range
@@ -830,6 +838,17 @@ resource "aws_subnet" "subnets" {
   }
 }
 ```
+* Execute
+```
+terraform init
+terraform fmt
+terraform validate
+terraform apply -var-file .\values.tfvars
+```
+![alt text](shots/58.PNG)
+![alt text](shots/59.PNG)
+![alt text](shots/55.PNG)
+
 ### AWS
 
 * Let's generate subnet CIDR range
