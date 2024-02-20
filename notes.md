@@ -853,7 +853,9 @@ terraform apply -var-file .\values.tfvars
 
 * Let's generate subnet CIDR range
 
-* For the changes done to use `CIDR subnet` function and object input type `inputs.tf`
+![alt text](shots/60.PNG)
+
+* For the changes done to use `CIDR subnet` function and object input type `cidr-sunets``inputs.tf`
 ```
 variable "region" {
   type        = string
