@@ -855,11 +855,11 @@ terraform apply -var-file .\values.tfvars
 
 ![alt text](shots/60.PNG)
 
-* For the changes done to use `CIDR subnet` function and object input type `cidr-sunets``inputs.tf`
+* For the changes done to use `CIDR subnet` function and object input type `subnets-range``inputs.tf`
 ```
 variable "region" {
   type        = string
-  default     = "us-west-2"
+  default     = "us-east-1"
   description = "Region to create resources"
 }
 
@@ -868,7 +868,7 @@ variable "ntier_vpc_info" {
     vpc_cidr     = string,
     subnet_azs   = list(string),
     subnet_names = list(string)
-   })
+  })
   default = {
     subnet_azs   = ["a", "b", "a", "b"]
     subnet_names = ["app1", "app2", "db1", "db2"]
@@ -879,7 +879,6 @@ variable "ntier_vpc_info" {
   * `main.tf`
 ```
 resource "aws_vpc" "ntier" {
-  cidr_block = var.ntier_vpc_info.vpc_cidr
   tags = {
     Name = "ntier"
   }
@@ -894,19 +893,22 @@ resource "aws_subnet" "subnets" {
     aws_vpc.ntier
   ]
   tags = {
-     Name = var.ntier_vpc_info.subnet_names[count.index]
+    Name = var.ntier_vpc_info.subnet_names[count.index]
   }
 }
 ```
   * `values.tfvars`
 ```
-region = "us-west-2"
+region = "us-east-1"
 ntier_vpc_info = {
-  subnet_azs   = ["a", "b", "a", "b","a", "b"]
+  subnet_azs   = ["a", "b", "a", "b", "a", "b"]
   subnet_names = ["app1", "app2", "db1", "db2", "web1", "web2"]
   vpc_cidr     = "192.168.0.0/16"
 }
 ```
+![alt text](shots/61.PNG)
+![alt text](shots/62.PNG)
+
 * Terraform plan is generated whenever we apply
 
 ### Azure
