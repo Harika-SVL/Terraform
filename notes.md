@@ -1137,10 +1137,13 @@ resource "azurerm_mssql_database" "sql_emp_db" {
   ]
 }
 ```
+![alt text](shots/63.PNG)
+
 * Terraform graph command creates dependency graphs in dot format which can be visualized in Graphviz. For the command
 
   [ Refer here : https://developer.hashicorp.com/terraform/cli/commands/graph ]
 
+![alt text](shots/64.PNG)
 
 ### Create VM's in Azure using Terraform
 
@@ -1152,8 +1155,7 @@ resource "azurerm_mssql_database" "sql_emp_db" {
 
   [ Refer here : https://learn.microsoft.com/en-us/azure/virtual-machines/linux/quick-create-portal?tabs=ubuntu ]
 
-* For changes
-* `app.tf`
+* For changes `app.tf`
 ```
 resource "azurerm_network_interface" "appserver_nic" {
   name                = "appservernic"
@@ -1272,6 +1274,8 @@ variable "appsubnet_index" {
   default = 1
 }
 ```
+![alt text](shots/65.PNG)
+
 * We have created a VM without public ip and database connectivity between VM and SQL is using internet.
 * Improvements:
   * Try to parametrize using variables and avoid creating too many variables by using object structure. For changes
@@ -1472,6 +1476,9 @@ output "database_endpoint" {
   value = azurerm_mssql_server.sql_server.fully_qualified_domain_name
 }
 ```
+![alt text](shots/66.PNG)
+![alt text](shots/67.PNG)
+
 ### AWS - ntier
 
 #### Making subnets public and private
