@@ -1560,14 +1560,13 @@ terraform apply -var-file .\dev.tfvars
 
 ### Creating Route tables
 
-* So far we have created vpc with 6 subnets and attached internet-gateway
+* So far we have created vpc with `6 subnets` and attached `internet-gateway`
 * Now let's create two route tables public and private
 * Terraform has local's where we can define the value for usage within template 
 
   [ Refer Here : https://developer.hashicorp.com/terraform/language/values/locals ]
 
-* For the changeset to add route tables
-* `localvalues.tf`
+* For the changeset `route-tables` => `localvalues.tf`
 ```
 locals {
   vpc_id   = aws_vpc.ntier.id
