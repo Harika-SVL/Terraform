@@ -1491,7 +1491,37 @@ output "database_endpoint" {
 
   [ Refer here : https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/internet_gateway ]
 
-* For the changes `network.tf`
+* For the changes `internet-gateway` => `dev.tfvars`
+```
+variable "region" {
+  type        = string
+  default     = "us-east-1"
+  description = "Region to create resources"
+}
+
+variable "ntier_vpc_info" {
+  type = object({
+    vpc_cidr     = string,
+    subnet_azs   = list(string),
+    subnet_names = list(string)
+  })
+  default = {
+    subnet_azs   = ["a", "b", "a", "b"]
+    subnet_names = ["app1", "app2", "db1", "db2"]
+    vpc_cidr     = "192.168.0.0/16"
+  }
+}
+```
+* `values.tf`
+```
+region = "us-east-1"
+ntier_vpc_info = {
+  subnet_azs   = ["a", "b", "a", "b", "a", "b"]
+  subnet_names = ["app1", "app2", "db1", "db2", "web1", "web2"]
+  vpc_cidr     = "192.168.0.0/16"
+}
+```
+* `network.tf`
 ```
 resource "aws_vpc" "ntier" {
   cidr_block = var.ntier_vpc_info.vpc_cidr
@@ -1499,7 +1529,6 @@ resource "aws_vpc" "ntier" {
     Name = "ntier"
   }
 }
-
 resource "aws_subnet" "subnets" {
   count             = length(var.ntier_vpc_info.subnet_names)
   cidr_block        = cidrsubnet(var.ntier_vpc_info.vpc_cidr, 8, count.index)
@@ -1520,15 +1549,22 @@ resource "aws_internet_gateway" "ntier_igw" {
   }
 }
 ```
-* Now let's create two route tables
+* Execute
+```
+terraform init
+terraform fmt
+terraform validate
+terraform apply -var-file .\dev.tfvars
+```
+![alt text](shots/68.PNG)
+
+### Creating Route tables
 
 * So far we have created vpc with 6 subnets and attached internet-gateway
 * Now let's create two route tables public and private
 * Terraform has local's where we can define the value for usage within template 
 
   [ Refer Here : https://developer.hashicorp.com/terraform/language/values/locals ]
-
-### Create Route tables
 
 * For the changeset to add route tables
 * `localvalues.tf`
