@@ -738,9 +738,7 @@ terraform apply -var-file .\values.tfvars
 
   [ Refer Here : https://developer.hashicorp.com/terraform/language/meta-arguments/count ]
 
-* Let's apply the _**count**_ for subnet creation, for changes `count`
-
-* `inputs.tf`
+* Let's apply the _**count**_ for subnet creation, for changes _**count**_ => `inputs.tf`
 ```
 variable "region" {
   type        = string
@@ -855,7 +853,7 @@ terraform apply -var-file .\values.tfvars
 
 ![alt text](shots/60.PNG)
 
-* For the changes done to use `CIDR subnet` function and object input type `subnets-range` => `inputs.tf`
+* For the changes done to use `CIDR subnet` function and object input type _**subnets-range**_ => `inputs.tf`
 ```
 variable "region" {
   type        = string
@@ -1491,7 +1489,7 @@ output "database_endpoint" {
 
   [ Refer here : https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/internet_gateway ]
 
-* For the changes `internet-gateway` => `dev.tfvars`
+* For the changes _**internet-gateway**_ => `dev.tfvars`
 ```
 variable "region" {
   type        = string
@@ -1587,7 +1585,7 @@ terraform apply -var-file .\dev.tfvars
 
   [ Refer Here : https://developer.hashicorp.com/terraform/language/values/locals ]
 
-* For the changeset `route-tables` => `localvalues.tf`
+* For the changeset _**route-tables**_ => `localvalues.tf`
 ```
 locals {
   vpc_id   = aws_vpc.ntier.id
@@ -1654,7 +1652,7 @@ resource "aws_route_table" "public" {
 
   [ Refer here : https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/route_table#argument-reference ]
 
-* Now we need to associate private route table with 4 subnets and public route table with 2 subnets. For the changes `routetable-subets` => `dev.tfvars`
+* Now we need to associate private route table with 4 subnets and public route table with 2 subnets. For the changes _**routetable-subets**_ => `dev.tfvars`
 ```
 region = "us-west-2"
 ntier_vpc_info = {
@@ -1796,7 +1794,7 @@ resource "aws_route_table_association" "private_associations" {
   * _**Size**_ : db.t2.micro
   * _**Credentials**_ : username and password
 
-* Creating 6 security Group, for changes `db-security-group` => `database.tf`
+* Creating 6 security Group, for changes _**db-security-group**_ => `database.tf`
 ```
 resource "aws_security_group" "db" {
   name = "mysql"
@@ -1824,7 +1822,7 @@ locals {
   tcp        = "tcp"
 }
 ```
-* Add db subnet group, for changes `db-subnetgroup` => `database tf`
+* Add db subnet group, for changes _**db-subnetgroup**_ => `database tf`
 ```
 resource "aws_security_group" "db" {
   name = "mysql"
@@ -1904,7 +1902,7 @@ variable "ntier_vpc_info" {
   }
 }
 ```
-* Create RDS instance, for the changes `rds-instance` => `database.tf`
+* Create RDS instance, for the changes _**rds-instance**_ => `database.tf`
 ```
 resource "aws_security_group" "db" {
   name = "mysql"
@@ -1963,7 +1961,7 @@ resource "aws_db_instance" "empdb" {
   ]
 }
 ```
-* Let's add database endpoint as output `database-endpoint` => `database.tf`
+* Let's add database endpoint as output _**database-endpoint**_ => `database.tf`
 ```
 resource "aws_security_group" "db" {
   name = "mysql"
@@ -2026,7 +2024,7 @@ resource "aws_db_instance" "empdb" {
 
 * Create an ec2 instance in `web1`subnet
 * Steps :
-  * Create security group `security-group` => `compute.tf`
+  * Create security group _**security-group**_ => `compute.tf`
 ```
 resource "aws_security_group" "web" {
   name = "web"
@@ -2065,7 +2063,7 @@ resource "aws_security_group" "web" {
   http_port  = 80
 }
   ```
-* Create ec2, for changes `db-ec2` => `compute.tf`
+* Create ec2, for changes _**db-ec2**_ => `compute.tf`
 ```
 resource "aws_security_group" "web" {
   name = "web"
