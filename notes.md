@@ -855,7 +855,7 @@ terraform apply -var-file .\values.tfvars
 
 ![alt text](shots/60.PNG)
 
-* For the changes done to use `CIDR subnet` function and object input type `subnets-range``inputs.tf`
+* For the changes done to use `CIDR subnet` function and object input type `subnets-range` => `inputs.tf`
 ```
 variable "region" {
   type        = string
@@ -1512,6 +1512,27 @@ variable "ntier_vpc_info" {
   }
 }
 ```
+* `inputs.tf`
+```
+variable "region" {
+  type        = string
+  default     = "us-east-1"
+  description = "Region to create resources"
+}
+
+variable "ntier_vpc_info" {
+  type = object({
+    vpc_cidr     = string,
+    subnet_azs   = list(string),
+    subnet_names = list(string)
+  })
+  default = {
+    subnet_azs   = ["a", "b", "a", "b"]
+    subnet_names = ["app1", "app2", "db1", "db2"]
+    vpc_cidr     = "192.168.0.0/16"
+  }
+}
+```
 * `values.tf`
 ```
 region = "us-east-1"
@@ -1581,11 +1602,12 @@ resource "aws_vpc" "ntier" {
     Name = "ntier"
   }
 }
+
 resource "aws_subnet" "subnets" {
   count             = length(var.ntier_vpc_info.subnet_names)
   cidr_block        = cidrsubnet(var.ntier_vpc_info.vpc_cidr, 8, count.index)
   availability_zone = "${var.region}${var.ntier_vpc_info.subnet_azs[count.index]}"
-    vpc_id            = local.vpc_id
+  vpc_id            = local.vpc_id
   depends_on = [
     aws_vpc.ntier
   ]
@@ -1609,7 +1631,6 @@ resource "aws_route_table" "private" {
   tags = {
     Name = "private"
   }
-
   depends_on = [
     aws_subnet.subnets
   ]
@@ -1624,7 +1645,6 @@ resource "aws_route_table" "public" {
     cidr_block = local.anywhere
     gateway_id = aws_internet_gateway.ntier_igw.id
   }
-
   depends_on = [
     aws_subnet.subnets
   ]
@@ -1634,8 +1654,7 @@ resource "aws_route_table" "public" {
 
   [ Refer here : https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/route_table#argument-reference ]
 
-* Now we need to associate private route table with 4 subnets and public route table with 2 subnets. For the changes 
-* `dev.tfvars`
+* Now we need to associate private route table with 4 subnets and public route table with 2 subnets. For the changes `routetable-subets` => `dev.tfvars`
 ```
 region = "us-west-2"
 ntier_vpc_info = {
@@ -1736,7 +1755,6 @@ data "aws_subnets" "public" {
     name   = "vpc-id"
     values = [local.vpc_id]
   }
-
   depends_on = [
     aws_subnet.subnets
   ]
@@ -1747,12 +1765,10 @@ data "aws_subnets" "private" {
     name   = "tag:Name"
     values = var.ntier_vpc_info.private_subnets
   }
-
   filter {
     name   = "vpc-id"
     values = [local.vpc_id]
   }
-
   depends_on = [
     aws_subnet.subnets
   ]
@@ -1780,8 +1796,7 @@ resource "aws_route_table_association" "private_associations" {
   * _**Size**_ : db.t2.micro
   * _**Credentials**_ : username and password
 
-* Creating 6 security Group, for changes
-* `database.tf`
+* Creating 6 security Group, for changes `db-security-group` => `database.tf`
 ```
 resource "aws_security_group" "db" {
   name = "mysql"
@@ -1790,13 +1805,11 @@ resource "aws_security_group" "db" {
     to_port     = local.mysql_port
     cidr_blocks = [var.ntier_vpc_info.vpc_cidr]
     protocol    = local.tcp
-
-  }
+}
   tags = {
     Name = "mysql"
   }
   vpc_id = local.vpc_id
-
   depends_on = [
     aws_subnet.subnets
   ]
@@ -1811,8 +1824,7 @@ locals {
   tcp        = "tcp"
 }
 ```
-* Add db subnet group, for changes
-* `database tf`
+* Add db subnet group, for changes `db-subnetgroup` => `database tf`
 ```
 resource "aws_security_group" "db" {
   name = "mysql"
@@ -1826,7 +1838,6 @@ resource "aws_security_group" "db" {
     Name = "mysql"
   }
   vpc_id = local.vpc_id
-
   depends_on = [
     aws_subnet.subnets
   ]
@@ -1864,7 +1875,6 @@ ntier_vpc_info = {
   public_subnets  = ["web1", "web2"]
   private_subnets = ["app1", "app2", "db1", "db2"]
   db_subnets      = ["db1", "db2"]
-
 }
 ```
 * `inputs.tf`
@@ -1874,6 +1884,7 @@ variable "region" {
   default     = "us-west-2"
   description = "Region to create resources"
 }
+
 variable "ntier_vpc_info" {
   type = object({
     vpc_cidr        = string,
@@ -1893,8 +1904,7 @@ variable "ntier_vpc_info" {
   }
 }
 ```
-* Create RDS instance, for the changes 
-* `database.tf`
+* Create RDS instance, for the changes `rds-instance` => `database.tf`
 ```
 resource "aws_security_group" "db" {
   name = "mysql"
@@ -1947,15 +1957,13 @@ resource "aws_db_instance" "empdb" {
   publicly_accessible    = false
   vpc_security_group_ids = [aws_security_group.db.id]
   skip_final_snapshot    = true
-
   depends_on = [
     aws_db_subnet_group.ntier,
     aws_security_group.db
   ]
 }
 ```
-* Let's add database endpoint as output
-* `database.tf`
+* Let's add database endpoint as output `database-endpoint` => `database.tf`
 ```
 resource "aws_security_group" "db" {
   name = "mysql"
@@ -1973,6 +1981,7 @@ resource "aws_security_group" "db" {
     aws_subnet.subnets
   ]
 }
+
 data "aws_subnets" "db" {
   filter {
     name   = "tag:Name"
@@ -1986,6 +1995,7 @@ data "aws_subnets" "db" {
     aws_subnet.subnets
   ]
 }
+
 resource "aws_db_subnet_group" "ntier" {
   name       = "ntier"
   subnet_ids = data.aws_subnets.db.ids
@@ -2006,7 +2016,6 @@ resource "aws_db_instance" "empdb" {
   publicly_accessible    = false
   vpc_security_group_ids = [aws_security_group.db.id]
   skip_final_snapshot    = true
-
   depends_on = [
     aws_db_subnet_group.ntier,
     aws_security_group.db
@@ -2017,8 +2026,7 @@ resource "aws_db_instance" "empdb" {
 
 * Create an ec2 instance in `web1`subnet
 * Steps :
-  * Create security group 
-* `compute.tf`
+  * Create security group `security-group` => `compute.tf`
 ```
 resource "aws_security_group" "web" {
   name = "web"
@@ -2027,6 +2035,7 @@ resource "aws_security_group" "web" {
     to_port     = local.ssh_port
     cidr_blocks = [local.anywhere]
     protocol    = local.tcp
+
   }
   ingress {
     from_port   = local.http_port
@@ -2054,12 +2063,11 @@ resource "aws_security_group" "web" {
   tcp        = "tcp"
   ssh_port   = 22
   http_port  = 80
-  }
+}
   ```
-* Create ec2, for changes
-* `compute.tf`
+* Create ec2, for changes `db-ec2` => `compute.tf`
 ```
-  resource "aws_security_group" "web" {
+resource "aws_security_group" "web" {
   name = "web"
   ingress {
     from_port   = local.ssh_port
@@ -2100,7 +2108,6 @@ data "aws_subnet" "web" {
     name   = "tag:Name"
     values = [var.ntier_vpc_info.web_ec2_subnet]
   }
-
   depends_on = [
     aws_subnet.subnets
   ]
@@ -2115,7 +2122,6 @@ resource "aws_instance" "web" {
   tags = {
     Name = "web1"
   }
-
   depends_on = [
     aws_db_instance.empdb,
     aws_security_group.web
@@ -2133,7 +2139,6 @@ ntier_vpc_info = {
   private_subnets = ["app1", "app2", "db1", "db2"]
   db_subnets      = ["db1", "db2"]
   web_ec2_subnet  = "web1"
-
 }
 ```
 * `inputs.tf`
@@ -2143,6 +2148,7 @@ variable "region" {
   default     = "us-west-2"
   description = "Region to create resources"
 }
+
 variable "ntier_vpc_info" {
   type = object({
     vpc_cidr        = string,
