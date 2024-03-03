@@ -436,8 +436,8 @@ terraform {
   required_version = ">= 1.0.0"
   required_providers {
     aws = {
-        source = "hashicorp/aws"
-        version = ">= 4.47.0"
+      source  = "hashicorp/aws"
+      version = ">= 4.47.0"
     }
   }
 }
@@ -446,10 +446,10 @@ provider "aws" {
 }
 
 resource "aws_vpc" "ntier" {
-    cidr_block = "192.168.0.0/16"
-    tags = {
-        Name = "ntier"
-    }
+  cidr_block = "192.168.0.0/16"
+  tags = {
+    Name = "ntier"
+  }
 }
 ```
 * To execute we use
@@ -491,7 +491,7 @@ terraform destroy
 ```
 variable "region" {
   type        = string
-  default     = "us-east-1"
+  default     = "us-west-2"
   description = "Region to create resources"
 }
 
@@ -544,7 +544,7 @@ terraform apply -var "region=ap-south-2" -var "ntier-vpc-range=10.10.0.0/16"
 
 * add `values.tfvars`
 ```
-region = "us-east-1" 
+region          = "us-west-2"
 ntier-vpc-range = "10.100.0.0/16"
 ```
 * Execute
@@ -628,7 +628,7 @@ vnet-range = ["10.100.0.0/16"]
 ```
 variable "region" {
   type        = string
-  default     = "us-east-1"
+  default     = "us-west-2"
   description = "Region to create resources"
 }
 variable "ntier-vpc-range" {
@@ -857,7 +857,7 @@ terraform apply -var-file .\values.tfvars
 ```
 variable "region" {
   type        = string
-  default     = "us-east-1"
+  default     = "us-west-2"
   description = "Region to create resources"
 }
 
@@ -897,7 +897,7 @@ resource "aws_subnet" "subnets" {
 ```
   * `values.tfvars`
 ```
-region = "us-east-1"
+region = "us-west-2"
 ntier_vpc_info = {
   subnet_azs   = ["a", "b", "a", "b", "a", "b"]
   subnet_names = ["app1", "app2", "db1", "db2", "web1", "web2"]
@@ -1493,7 +1493,7 @@ output "database_endpoint" {
 ```
 variable "region" {
   type        = string
-  default     = "us-east-1"
+  default     = "us-west-2"
   description = "Region to create resources"
 }
 
@@ -1514,7 +1514,7 @@ variable "ntier_vpc_info" {
 ```
 variable "region" {
   type        = string
-  default     = "us-east-1"
+  default     = "us-west-2"
   description = "Region to create resources"
 }
 
@@ -1531,9 +1531,9 @@ variable "ntier_vpc_info" {
   }
 }
 ```
-* `values.tf`
+* `values.tfvars`
 ```
-region = "us-east-1"
+region = "us-west-2"
 ntier_vpc_info = {
   subnet_azs   = ["a", "b", "a", "b", "a", "b"]
   subnet_names = ["app1", "app2", "db1", "db2", "web1", "web2"]
