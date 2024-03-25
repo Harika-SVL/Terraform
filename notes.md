@@ -1489,25 +1489,20 @@ output "database_endpoint" {
 
   [ Refer here : https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/internet_gateway ]
 
-* For the changes _**internet-gateway**_ => `dev.tfvars`
+* For the changes _**internet-gateway**_ => `provider.tf`
 ```
-variable "region" {
-  type        = string
-  default     = "us-east-1"
-  description = "Region to create resources"
+terraform {
+  required_version = ">= 1.0.0"
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = ">= 4.47.0"
+    }
+  }
 }
 
-variable "ntier_vpc_info" {
-  type = object({
-    vpc_cidr     = string,
-    subnet_azs   = list(string),
-    subnet_names = list(string)
-  })
-  default = {
-    subnet_azs   = ["a", "b", "a", "b"]
-    subnet_names = ["app1", "app2", "db1", "db2"]
-    vpc_cidr     = "192.168.0.0/16"
-  }
+provider "aws" {
+  region = var.region
 }
 ```
 * `inputs.tf`
@@ -1531,7 +1526,7 @@ variable "ntier_vpc_info" {
   }
 }
 ```
-* `values.tfvars`
+* `dev.tfvars`
 ```
 region = "us-east-1"
 ntier_vpc_info = {
@@ -1661,7 +1656,7 @@ terraform apply -var-file .\dev.tfvars
 
   [ Refer here : https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/route_table#argument-reference ]
 
-* Now we need to associate `private-route-table` with `4 subnets` and `public-route-table` with `2 subnets`. For the changes _**routetable-subets**_ => `dev.tfvars`
+* Now we need to associate `private-route-table` with `4 subnets` and `public-route-table` with `2 subnets`. For the changes add _**routetable-subets**_ => `dev.tfvars`
 ```
 region = "us-east-1"
 ntier_vpc_info = {
@@ -1793,6 +1788,15 @@ resource "aws_route_table_association" "private_associations" {
   subnet_id      = data.aws_subnets.private.ids[count.index]
 }
 ```
+* Execute
+```
+terraform init
+terraform fmt
+terraform validate
+terraform apply -var-file .\dev.tfvars
+```
+![alt text](shots/70.PNG)
+
 ### Creating RDS DB Instance (db)
 
 * Manual steps :
