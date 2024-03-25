@@ -230,7 +230,7 @@ vi main.tf
 * Let's write provider configuration in `main.tf`
 ```
 provider "aws" {
-  region     = "us-west-2"
+  region     = "us-east-1"
   access_key = "my-access-key" 
   secret_key = "my-secret-key" 
 }
@@ -271,7 +271,7 @@ vi main.tf
 * Now your provider can be as simple as `main.tf` and execute it with the commands
 ```
 provider "aws" {
-    region = "us-west-2"
+    region = "us-east-1"
 }
 ```
 ```
@@ -491,7 +491,7 @@ terraform destroy
 ```
 variable "region" {
   type        = string
-  default     = "us-west-2"
+  default     = "us-east-1"
   description = "Region to create resources"
 }
 
@@ -544,7 +544,7 @@ terraform apply -var "region=ap-south-2" -var "ntier-vpc-range=10.10.0.0/16"
 
 * add `values.tfvars`
 ```
-region          = "us-west-2"
+region          = "us-east-1"
 ntier-vpc-range = "10.100.0.0/16"
 ```
 * Execute
@@ -628,7 +628,7 @@ vnet-range = ["10.100.0.0/16"]
 ```
 variable "region" {
   type        = string
-  default     = "us-west-2"
+  default     = "us-east-1"
   description = "Region to create resources"
 }
 variable "ntier-vpc-range" {
@@ -716,7 +716,7 @@ resource "aws_subnet" "db2" {
 ```
 * `values.tfvars`
 ```
-region          = "us-west-2"
+region          = "us-east-1"
 ntier-vpc-range = "10.100.0.0/16"
 ntier-app1-cidr = "10.100.0.0/24"
 ntier-app2-cidr = "10.100.1.0/24"
@@ -742,7 +742,7 @@ terraform apply -var-file .\values.tfvars
 ```
 variable "region" {
   type        = string
-  default     = "us-west-2"
+  default     = "us-east-1"
   description = "Region to create resources"
 }
 
@@ -791,7 +791,7 @@ resource "aws_subnet" "subnets" {
 ```
 * `values.tfvars`
 ```
-region             = "us-west-2"
+region             = "us-east-1"
 ntier-vpc-range    = "10.100.0.0/16"
 ntier-subnet-cidrs = ["10.100.0.0/24", "10.100.1.0/24", "10.100.2.0/24", "10.100.3.0/24"]
 ```
@@ -857,7 +857,7 @@ terraform apply -var-file .\values.tfvars
 ```
 variable "region" {
   type        = string
-  default     = "us-west-2"
+  default     = "us-east-1"
   description = "Region to create resources"
 }
 
@@ -897,7 +897,7 @@ resource "aws_subnet" "subnets" {
 ```
   * `values.tfvars`
 ```
-region = "us-west-2"
+region = "us-east-1"
 ntier_vpc_info = {
   subnet_azs   = ["a", "b", "a", "b", "a", "b"]
   subnet_names = ["app1", "app2", "db1", "db2", "web1", "web2"]
@@ -1493,7 +1493,7 @@ output "database_endpoint" {
 ```
 variable "region" {
   type        = string
-  default     = "us-west-2"
+  default     = "us-east-1"
   description = "Region to create resources"
 }
 
@@ -1514,7 +1514,7 @@ variable "ntier_vpc_info" {
 ```
 variable "region" {
   type        = string
-  default     = "us-west-2"
+  default     = "us-east-1"
   description = "Region to create resources"
 }
 
@@ -1533,7 +1533,7 @@ variable "ntier_vpc_info" {
 ```
 * `values.tfvars`
 ```
-region = "us-west-2"
+region = "us-east-1"
 ntier_vpc_info = {
   subnet_azs   = ["a", "b", "a", "b", "a", "b"]
   subnet_names = ["app1", "app2", "db1", "db2", "web1", "web2"]
@@ -1585,7 +1585,7 @@ terraform apply -var-file .\dev.tfvars
 
   [ Refer Here : https://developer.hashicorp.com/terraform/language/values/locals ]
 
-* For the changeset _**route-tables**_ => `localvalues.tf`
+* For the changeset add  _**route-tables**_ => `localvalues.tf`
 ```
 locals {
   vpc_id   = aws_vpc.ntier.id
@@ -1648,13 +1648,22 @@ resource "aws_route_table" "public" {
   ]
 }
 ```
+* Execute
+```
+terraform init
+terraform fmt
+terraform validate
+terraform apply -var-file .\dev.tfvars
+```
+![alt text](shots/69.PNG)
+
 * For route table resource reference
 
   [ Refer here : https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/route_table#argument-reference ]
 
-* Now we need to associate private route table with 4 subnets and public route table with 2 subnets. For the changes _**routetable-subets**_ => `dev.tfvars`
+* Now we need to associate `private-route-table` with `4 subnets` and `public-route-table` with `2 subnets`. For the changes _**routetable-subets**_ => `dev.tfvars`
 ```
-region = "us-west-2"
+region = "us-east-1"
 ntier_vpc_info = {
   subnet_azs      = ["a", "b", "a", "b", "a", "b"]
   subnet_names    = ["app1", "app2", "db1", "db2", "web1", "web2"]
@@ -1667,7 +1676,7 @@ ntier_vpc_info = {
 ```
 variable "region" {
   type        = string
-  default     = "us-west-2"
+  default     = "us-east-1"
   description = "Region to create resources"
 }
 
@@ -1865,7 +1874,7 @@ resource "aws_db_subnet_group" "ntier" {
 ```
 * `dev.tfvars`
 ```
-region = "us-west-2"
+region = "us-east-1"
 ntier_vpc_info = {
   subnet_azs      = ["a", "b", "a", "b", "a", "b"]
   subnet_names    = ["app1", "app2", "db1", "db2", "web1", "web2"]
@@ -1879,7 +1888,7 @@ ntier_vpc_info = {
 ```
 variable "region" {
   type        = string
-  default     = "us-west-2"
+  default     = "us-east-1"
   description = "Region to create resources"
 }
 
@@ -2128,7 +2137,7 @@ resource "aws_instance" "web" {
 ```
 * `dev.tfvars`
 ```
-region = "us-west-2"
+region = "us-east-1"
 ntier_vpc_info = {
   subnet_azs      = ["a", "b", "a", "b", "a", "b"]
   subnet_names    = ["app1", "app2", "db1", "db2", "web1", "web2"]
@@ -2143,7 +2152,7 @@ ntier_vpc_info = {
 ```
 variable "region" {
   type        = string
-  default     = "us-west-2"
+  default     = "us-east-1"
   description = "Region to create resources"
 }
 
@@ -2372,7 +2381,7 @@ variable "cidr-block" {
 
 variable "region" {
     type = string
-    default = "us-west-2"
+    default = "us-east-1"
 }
 ```
 * `network.tf`
@@ -2399,7 +2408,7 @@ terraform {
     bucket         = "terraformremotebackendqt"
     key            = "classes/hellotf"
     dynamodb_table = "terraformlock"
-    region         = "us-west-2"
+    region         = "us-east-1"
   }
 }
 
@@ -2506,7 +2515,7 @@ module "vpc" {
 * `provider.tf`
 ```
 provider "aws" {
-    region  = "us-west-2"
+    region  = "us-east-1"
 }
 ```
 * To create ec2 
@@ -2543,12 +2552,12 @@ provider "aws" {
   * use alias
 ```
 provider "aws" {
-region = "us-west-2"
+region = "us-east-1"
 alias = red
 }
 
 provider "aws" {
-region = "us-west-2"
+region = "us-east-1"
 alias = green
 }
 
@@ -2696,7 +2705,7 @@ data "aws_subnet" "first" {
 ```
 variable "region" {
   type    = string
-  default = "us-west-2"
+  default = "us-east-1"
 }
 ```
 * `outputs.tf`
@@ -2930,7 +2939,7 @@ resource "aws_instance" "apache" {
 ```
 variable "region" {
   type    = string
-  default = "us-west-2"
+  default = "us-east-"
 }
 
 variable "rollout_version" {
@@ -3046,7 +3055,7 @@ resource "null_resource" "executor" {
 ```
 variable "region" {
   type    = string
-  default = "us-west-2"
+  default = "us-east-1"
 }
 
 variable "vpc_cidr_block" {
@@ -3171,12 +3180,12 @@ provider "aws" {
 * `main.tf`
 ```
 provider "aws" {
-  region = "us-west-2"
+  region = "us-east-1"
 }
 
 module "aws_vpc" {
   source = "./modules/aws_vpc"
-  region = "us-west-2"
+  region = "us-east-1"
   subnet_info = {
     names               = ["web", "app", "db", "mgmt"]
     public_subnet_names = ["web"]
