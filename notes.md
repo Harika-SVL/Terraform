@@ -1650,6 +1650,8 @@ terraform fmt
 terraform validate
 terraform apply -var-file .\dev.tfvars
 ```
+TIME = 26 march video = 04.24
+
 ![alt text](shots/69.PNG)
 
 * For route table resource reference
